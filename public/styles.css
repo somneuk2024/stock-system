@@ -65,13 +65,13 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-/* ต้องมาก่อนทุก .class ที่กำหนด display เอง ไม่งั้น attribute hidden จะถูก override */
+/* ຕ້ອງມາກ່ອນທຸກ .class ທີ່ກຳນົດ display ເອງ ບໍ່ຢັ້ງນັ້ນ attribute hidden ຈະຖືກ override */
 [hidden] { display: none !important; }
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: 'IBM Plex Sans Thai', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Noto Sans Lao', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;

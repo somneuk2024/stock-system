@@ -1,5 +1,5 @@
 /* ============================================================
-   LINE Stock — LIFF dashboard
+   LINE Stock — ແດຊບອດ LIFF
    ============================================================ */
 
 const $  = (sel, root = document) => root.querySelector(sel);
@@ -18,25 +18,25 @@ const state = {
 };
 
 const ACTIONS = {
-  issue:    { label: 'เบิกออก', icon: '📤', cls: 'issue',    verb: 'เบิก' },
-  receive:  { label: 'รับเข้า', icon: '📥', cls: 'receive',  verb: 'รับเข้า' },
-  adjust:   { label: 'ปรับยอด', icon: '⚖️', cls: 'adjust',   verb: 'ปรับเป็น' },
-  transfer: { label: 'ย้ายคลัง', icon: '🔁', cls: 'transfer', verb: 'ย้าย' },
+  issue:    { label: 'ເບີກອອກ', icon: '📤', cls: 'issue',    verb: 'ເບີກ' },
+  receive:  { label: 'ຮັບເຂົ້າ', icon: '📥', cls: 'receive',  verb: 'ຮັບເຂົ້າ' },
+  adjust:   { label: 'ປັບຍອດ', icon: '⚖️', cls: 'adjust',   verb: 'ປັບເປັນ' },
+  transfer: { label: 'ຍ້າຍສາງ', icon: '🔁', cls: 'transfer', verb: 'ຍ້າຍ' },
 };
 
 const MOVE_META = {
-  issue:        { label: 'เบิกออก', icon: '📤', cls: 'issue' },
-  receive:      { label: 'รับเข้า', icon: '📥', cls: 'receive' },
-  adjust:       { label: 'ปรับยอด', icon: '⚖️', cls: 'adjust' },
-  transfer_out: { label: 'ย้ายออก', icon: '🔁', cls: 'transfer' },
-  transfer_in:  { label: 'ย้ายเข้า', icon: '🔁', cls: 'transfer' },
+  issue:        { label: 'ເບີກອອກ', icon: '📤', cls: 'issue' },
+  receive:      { label: 'ຮັບເຂົ້າ', icon: '📥', cls: 'receive' },
+  adjust:       { label: 'ປັບຍອດ', icon: '⚖️', cls: 'adjust' },
+  transfer_out: { label: 'ຍ້າຍອອກ', icon: '🔁', cls: 'transfer' },
+  transfer_in:  { label: 'ຍ້າຍເຂົ້າ', icon: '🔁', cls: 'transfer' },
 };
 
 /* ------------------------------------------------------------ helpers */
 
 const fmt = (n) => {
   const v = Math.round((Number(n) || 0) * 1000) / 1000;
-  return v.toLocaleString('th-TH', { maximumFractionDigits: 3 });
+  return v.toLocaleString('lo-LA', { maximumFractionDigits: 3 });
 };
 
 const esc = (s) =>
@@ -51,11 +51,11 @@ function stockClass(qty, min) {
 function relTime(sqlUtc) {
   const d = new Date(String(sqlUtc).replace(' ', 'T') + 'Z');
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60) return 'เมื่อครู่';
-  if (diff < 3600) return `${Math.floor(diff / 60)} นาทีที่แล้ว`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} ชั่วโมงที่แล้ว`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} วันที่แล้ว`;
-  return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Bangkok' });
+  if (diff < 60) return 'ດຽວນີ້';
+  if (diff < 3600) return `${Math.floor(diff / 60)} ນາທີກ່ອນ`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} ຊົ່ວໂມງກ່ອນ`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} ວັນກ່ອນ`;
+  return d.toLocaleDateString('lo-LA', { day: 'numeric', month: 'short', year: '2-digit', timeZone: 'Asia/Vientiane' });
 }
 
 function toast(message, kind = '') {
@@ -76,7 +76,7 @@ async function api(path, options = {}) {
   if (state.idToken) headers.authorization = `Bearer ${state.idToken}`;
   const res = await fetch(`/api${path}`, { ...options, headers });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `เกิดข้อผิดพลาด (${res.status})`);
+  if (!res.ok) throw new Error(data.error || `ເກີດຂໍ້ຜິດພາດ (${res.status})`);
   return data;
 }
 
@@ -95,7 +95,7 @@ async function boot() {
         return;
       }
       state.idToken = liff.getIDToken();
-      if (!state.idToken) throw new Error('ไม่ได้รับ ID token — ตรวจสอบว่าเปิด scope "openid" ใน LINE Login แล้ว');
+      if (!state.idToken) throw new Error('ບໍ່ໄດ້ຮັບ ID token — ກວດສອບວ່າເປີດ scope "openid" ໃນ LINE Login ແລ້ວ');
     }
 
     state.me = await api('/me');
@@ -109,7 +109,7 @@ async function boot() {
     $('#boot').innerHTML = `
       <div class="boot__logo">⚠️</div>
       <div class="boot__text" style="max-width:280px;text-align:center">${esc(err.message)}</div>
-      <button class="btn btn--ghost" onclick="location.reload()">ลองใหม่</button>`;
+      <button class="btn btn--ghost" onclick="location.reload()">ລອງໃໝ່</button>`;
   }
 }
 
@@ -124,7 +124,7 @@ function applyDeepLink() {
 }
 
 function paintUser() {
-  const name = state.me?.name || 'ผู้ใช้';
+  const name = state.me?.name || 'ຜູ້ໃຊ້';
   $('#userInitial').textContent = name.trim().charAt(0).toUpperCase();
   if (state.me?.picture) {
     const img = $('#userAvatar');
@@ -155,21 +155,21 @@ async function loadProducts() {
   return state.products;
 }
 
-/* ------------------------------------------------------------ ภาพรวม */
+/* ------------------------------------------------------------ ພາບລວມ */
 
 function renderOverview(data) {
   const s = data.summary;
   $('#statGrid').innerHTML = `
-    ${statTile('รายการสินค้า', fmt(s.productCount), `${s.locationCount} คลัง`, '')}
-    ${statTile('หน่วยคงเหลือรวม', fmt(s.totalUnits), 'ทุกคลังรวมกัน', '')}
-    ${statTile('ใกล้หมด', fmt(s.lowCount), 'ต่ำกว่าจุดสั่งซื้อ', 'warn')}
-    ${statTile('หมดสต๊อก', fmt(s.outCount), 'ต้องสั่งซื้อด่วน', 'danger')}
+    ${statTile('ລາຍການສິນຄ້າ', fmt(s.productCount), `${s.locationCount} ສາງ`, '')}
+    ${statTile('ໜ່ວຍຄົງເຫຼືອລວມ', fmt(s.totalUnits), 'ທຸກສາງລວມກັນ', '')}
+    ${statTile('ໃກ້ໝົດ', fmt(s.lowCount), 'ຕ່ຳກວ່າຈຸດສັ່ງຊື້', 'warn')}
+    ${statTile('ໝົດສະຕອກ', fmt(s.outCount), 'ຕ້ອງສັ່ງຊື້ດ່ວນ', 'danger')}
     <div class="stat" style="grid-column:1/-1">
-      <div class="stat__label">ความเคลื่อนไหววันนี้</div>
+      <div class="stat__label">ການເຄື່ອນໄຫວມື້ນີ້</div>
       <div style="display:flex;gap:22px;margin-top:8px">
-        <div><div class="stat__value" style="color:var(--issue);font-size:22px">${fmt(s.todayIssue)}</div><div class="stat__hint">เบิกออก</div></div>
-        <div><div class="stat__value" style="color:var(--receive);font-size:22px">${fmt(s.todayReceive)}</div><div class="stat__hint">รับเข้า</div></div>
-        <div><div class="stat__value" style="font-size:22px">${fmt(s.todayMovements)}</div><div class="stat__hint">รายการ</div></div>
+        <div><div class="stat__value" style="color:var(--issue);font-size:22px">${fmt(s.todayIssue)}</div><div class="stat__hint">ເບີກອອກ</div></div>
+        <div><div class="stat__value" style="color:var(--receive);font-size:22px">${fmt(s.todayReceive)}</div><div class="stat__hint">ຮັບເຂົ້າ</div></div>
+        <div><div class="stat__value" style="font-size:22px">${fmt(s.todayMovements)}</div><div class="stat__hint">ລາຍການ</div></div>
       </div>
     </div>`;
 
@@ -181,21 +181,21 @@ function renderOverview(data) {
       <div class="loc-bar">
         <div class="loc-bar__top">
           <span class="loc-bar__name">${esc(l.name)}</span>
-          <span class="loc-bar__value">${fmt(l.units)} หน่วย · ${l.items} รายการ</span>
+          <span class="loc-bar__value">${fmt(l.units)} ໜ່ວຍ · ${l.items} ລາຍການ</span>
         </div>
         <div class="loc-bar__track"><div class="loc-bar__fill" style="width:${((Number(l.units) || 0) / max) * 100}%"></div></div>
       </div>`,
         )
         .join('')
-    : '<div class="empty">ยังไม่มีคลังสินค้า</div>';
+    : '<div class="empty">ຍັງບໍ່ມີສາງສິນຄ້າ</div>';
 
   $('#lowList').innerHTML = data.low.length
     ? data.low.map((p) => productRow(p, true)).join('')
-    : '<div class="empty">ไม่มีสินค้าต่ำกว่าจุดสั่งซื้อ 🎉</div>';
+    : '<div class="empty">ບໍ່ມີສິນຄ້າຕ່ຳກວ່າຈຸດສັ່ງຊື້ 🎉</div>';
 
   $('#recentList').innerHTML = data.recent.length
     ? data.recent.slice(0, 6).map(movementRow).join('')
-    : '<div class="empty">ยังไม่มีความเคลื่อนไหว</div>';
+    : '<div class="empty">ຍັງບໍ່ມີການເຄື່ອນໄຫວ</div>';
 }
 
 function statTile(label, value, hint, kind) {
@@ -208,7 +208,7 @@ function statTile(label, value, hint, kind) {
 
 function productRow(p, plain = false) {
   const cls = stockClass(Number(p.total_qty), Number(p.min_qty));
-  const badge = cls === 'out' ? 'หมด' : cls === 'low' ? 'ใกล้หมด' : '';
+  const badge = cls === 'out' ? 'ໝົດ' : cls === 'low' ? 'ໃກ້ໝົດ' : '';
   return `<button class="item ${plain ? 'item--plain' : ''}" data-product="${p.id}">
     <div class="item__main">
       <div class="item__name">${esc(p.name)}</div>
@@ -236,17 +236,17 @@ function movementRow(m) {
     </div>
     <div>
       <div class="tl__delta" style="color:var(--${positive ? 'receive' : 'issue'})">${positive ? '+' : ''}${fmt(m.delta)}</div>
-      <div class="tl__balance">เหลือ ${fmt(m.balance_after)}</div>
+      <div class="tl__balance">ຄົງເຫຼືອ ${fmt(m.balance_after)}</div>
     </div>
   </div>`;
 }
 
-/* ------------------------------------------------------------- สินค้า */
+/* ------------------------------------------------------------- ສິນຄ້າ */
 
 function renderLocationFilter() {
   const sel = $('#locationFilter');
   sel.innerHTML =
-    '<option value="">ทุกคลัง</option>' +
+    '<option value="">ທຸກສາງ</option>' +
     state.locations.map((l) => `<option value="${l.id}">${esc(l.name)}</option>`).join('');
   sel.value = state.filters.locationId;
 }
@@ -254,7 +254,7 @@ function renderLocationFilter() {
 function renderProducts(products) {
   $('#productList').innerHTML = products.length
     ? products.map((p) => productRow(p)).join('')
-    : `<div class="empty">ไม่พบสินค้าที่ตรงกับเงื่อนไข</div>`;
+    : `<div class="empty">ບໍ່ພົບສິນຄ້າທີ່ຕົງກັບເງື່ອນໄຂ</div>`;
 }
 
 function renderSettingsLocations(byLocation = []) {
@@ -264,16 +264,16 @@ function renderSettingsLocations(byLocation = []) {
       const s = stats[l.id] ?? { units: 0, items: 0 };
       return `<button class="item item--plain" data-location="${l.id}">
         <div class="item__main">
-          <div class="item__name">${esc(l.name)} ${l.is_default ? '<span class="badge badge--ok">ค่าเริ่มต้น</span>' : ''}</div>
-          <div class="item__meta"><span>${esc(l.code)}</span><span>· ${s.items} รายการ</span></div>
+          <div class="item__name">${esc(l.name)} ${l.is_default ? '<span class="badge badge--ok">ຄ່າເລີ່ມຕົ້ນ</span>' : ''}</div>
+          <div class="item__meta"><span>${esc(l.code)}</span><span>· ${s.items} ລາຍການ</span></div>
         </div>
-        <div class="item__qty"><b>${fmt(s.units)}</b><span>หน่วย</span></div>
+        <div class="item__qty"><b>${fmt(s.units)}</b><span>ໜ່ວຍ</span></div>
       </button>`;
     })
     .join('');
 }
 
-/* ------------------------------------------------------------ ประวัติ */
+/* ------------------------------------------------------------ ປະຫວັດ */
 
 async function renderHistory() {
   const list = $('#historyList');
@@ -283,7 +283,7 @@ async function renderHistory() {
     state.historyType === 'all'
       ? rows
       : rows.filter((r) => (state.historyType === 'transfer' ? r.type.startsWith('transfer') : r.type === state.historyType));
-  list.innerHTML = filtered.length ? filtered.map(movementRow).join('') : '<div class="empty">ไม่มีรายการ</div>';
+  list.innerHTML = filtered.length ? filtered.map(movementRow).join('') : '<div class="empty">ບໍ່ມີລາຍການ</div>';
 }
 
 /* -------------------------------------------------------- bottom sheet */
@@ -308,10 +308,10 @@ function sheetHead(title, subtitle) {
   </div>`;
 }
 
-/* -------------------------------------------------- รายละเอียดสินค้า */
+/* -------------------------------------------------- ລາຍລະອຽດສິນຄ້າ */
 
 async function openProduct(id) {
-  openSheet(`${sheetHead('กำลังโหลด…', '')}<div class="skeleton" style="height:120px"></div>`);
+  openSheet(`${sheetHead('ກຳລັງໂຫຼດ…', '')}<div class="skeleton" style="height:120px"></div>`);
   try {
     const { product, levels, movements, total } = await api(`/products/${id}`);
     const cls = stockClass(total, product.min_qty);
@@ -319,22 +319,22 @@ async function openProduct(id) {
       ${sheetHead(product.name, `${product.sku}${product.barcode ? ' · ' + product.barcode : ''}`)}
       <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
         <div class="confirm__big qty-${cls}" style="font-size:34px">${fmt(total)}</div>
-        <div style="color:var(--muted);font-size:13px">${esc(product.unit)} รวมทุกคลัง</div>
+        <div style="color:var(--muted);font-size:13px">${esc(product.unit)} ລວມທຸກສາງ</div>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:2px">
-        ${product.min_qty > 0 ? `จุดสั่งซื้อขั้นต่ำ ${fmt(product.min_qty)} ${esc(product.unit)}` : 'ยังไม่ตั้งจุดสั่งซื้อ'}
+        ${product.min_qty > 0 ? `ຈຸດສັ່ງຊື້ຂັ້ນຕ່ຳ ${fmt(product.min_qty)} ${esc(product.unit)}` : 'ຍັງບໍ່ຕັ້ງຈຸດສັ່ງຊື້'}
         ${product.category ? ' · ' + esc(product.category) : ''}
       </div>
 
       <div class="btn-grid" style="margin-top:16px">
-        <button class="btn btn--issue" data-move="issue" data-id="${product.id}">📤 เบิกออก</button>
-        <button class="btn btn--receive" data-move="receive" data-id="${product.id}">📥 รับเข้า</button>
-        <button class="btn btn--ghost" data-move="adjust" data-id="${product.id}">⚖️ ปรับยอด</button>
-        <button class="btn btn--ghost" data-move="transfer" data-id="${product.id}">🔁 ย้ายคลัง</button>
+        <button class="btn btn--issue" data-move="issue" data-id="${product.id}">📤 ເບີກອອກ</button>
+        <button class="btn btn--receive" data-move="receive" data-id="${product.id}">📥 ຮັບເຂົ້າ</button>
+        <button class="btn btn--ghost" data-move="adjust" data-id="${product.id}">⚖️ ປັບຍອດ</button>
+        <button class="btn btn--ghost" data-move="transfer" data-id="${product.id}">🔁 ຍ້າຍສາງ</button>
       </div>
 
       <section>
-        <h3>คงเหลือแยกตามคลัง</h3>
+        <h3>ຄົງເຫຼືອແຍກຕາມສາງ</h3>
         <div class="list">
           ${levels
             .map(
@@ -346,12 +346,12 @@ async function openProduct(id) {
       </section>
 
       <section>
-        <h3>ความเคลื่อนไหวล่าสุด</h3>
-        <div class="timeline">${movements.length ? movements.slice(0, 12).map(movementRow).join('') : '<div class="empty">ยังไม่มีรายการ</div>'}</div>
+        <h3>ການເຄື່ອນໄຫວລ່າສຸດ</h3>
+        <div class="timeline">${movements.length ? movements.slice(0, 12).map(movementRow).join('') : '<div class="empty">ຍັງບໍ່ມີລາຍການ</div>'}</div>
       </section>
 
       <section>
-        <button class="btn btn--ghost btn--block" data-edit-product="${product.id}">แก้ไขข้อมูลสินค้า</button>
+        <button class="btn btn--ghost btn--block" data-edit-product="${product.id}">ແກ້ໄຂຂໍ້ມູນສິນຄ້າ</button>
       </section>
     `);
   } catch (err) {
@@ -360,7 +360,7 @@ async function openProduct(id) {
   }
 }
 
-/* ------------------------------------------------------- ทำรายการสต๊อก */
+/* ------------------------------------------------------- ເຮັດລາຍການສະຕອກ */
 
 async function openMovement(productId, action = 'issue') {
   const { product, levels } = await api(`/products/${productId}`);
@@ -377,23 +377,23 @@ async function openMovement(productId, action = 'issue') {
 
     <form id="moveForm" style="margin-top:18px">
       <div class="field">
-        <label>${action === 'transfer' ? 'คลังต้นทาง' : 'คลัง'}</label>
+        <label>${action === 'transfer' ? 'ສາງຕົ້ນທາງ' : 'ສາງ'}</label>
         <select name="locationId">
-          ${levels.map((l) => `<option value="${l.location_id}" ${l.location_id === defaultLoc?.location_id ? 'selected' : ''}>${esc(l.name)} — คงเหลือ ${fmt(l.qty)} ${esc(product.unit)}</option>`).join('')}
+          ${levels.map((l) => `<option value="${l.location_id}" ${l.location_id === defaultLoc?.location_id ? 'selected' : ''}>${esc(l.name)} — ຄົງເຫຼືອ ${fmt(l.qty)} ${esc(product.unit)}</option>`).join('')}
         </select>
       </div>
 
       ${
         action === 'transfer'
-          ? `<div class="field"><label>คลังปลายทาง</label>
+          ? `<div class="field"><label>ສາງປາຍທາງ</label>
               <select name="toLocationId">
-                ${levels.map((l) => `<option value="${l.location_id}">${esc(l.name)} — คงเหลือ ${fmt(l.qty)} ${esc(product.unit)}</option>`).join('')}
+                ${levels.map((l) => `<option value="${l.location_id}">${esc(l.name)} — ຄົງເຫຼືອ ${fmt(l.qty)} ${esc(product.unit)}</option>`).join('')}
               </select></div>`
           : ''
       }
 
       <div class="field">
-        <label>${action === 'adjust' ? `จำนวนที่นับได้จริง (${esc(product.unit)})` : `จำนวน (${esc(product.unit)})`}</label>
+        <label>${action === 'adjust' ? `ຈຳນວນທີ່ນັບໄດ້ຈິງ (${esc(product.unit)})` : `ຈຳນວນ (${esc(product.unit)})`}</label>
         <div class="stepper">
           <button type="button" data-step="-1">−</button>
           <input name="qty" type="number" inputmode="decimal" min="0" step="any" value="${action === 'adjust' ? fmt(defaultLoc?.qty ?? 0).replace(/,/g, '') : 1}" />
@@ -402,13 +402,13 @@ async function openMovement(productId, action = 'issue') {
       </div>
 
       <div class="field">
-        <label>หมายเหตุ (ไม่บังคับ)</label>
-        <input name="note" placeholder="เช่น ใช้ในงานอีเวนต์ / ผู้รับของ" />
+        <label>ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label>
+        <input name="note" placeholder="ເຊັ່ນ ໃຊ້ໃນວຽກອິເວນ / ຜູ້ຮັບຂອງ" />
       </div>
 
       <div class="confirm" id="preview"></div>
 
-      <button class="btn btn--${meta.cls} btn--block" style="margin-top:14px" type="submit" id="submitBtn">ยืนยัน</button>
+      <button class="btn btn--${meta.cls} btn--block" style="margin-top:14px" type="submit" id="submitBtn">ຢືນຢັນ</button>
     </form>
   `);
 
@@ -425,15 +425,15 @@ async function openMovement(productId, action = 'issue') {
     const invalid = (action !== 'adjust' && qty <= 0) || (action !== 'receive' && action !== 'adjust' && after < 0);
 
     $('#preview').innerHTML = `
-      <div class="row"><span class="row__label">คงเหลือปัจจุบัน</span><span class="row__value">${fmt(current)} ${esc(unit)}</span></div>
+      <div class="row"><span class="row__label">ຄົງເຫຼືອປັດຈຸບັນ</span><span class="row__value">${fmt(current)} ${esc(unit)}</span></div>
       <div class="row"><span class="row__label">${ACTIONS[action].verb}</span><span class="row__value" style="color:var(--${meta.cls})">${fmt(qty)} ${esc(unit)}</span></div>
-      <div class="row"><span class="row__label">คงเหลือหลังทำรายการ</span><span class="confirm__big qty-${cls}">${fmt(after)} ${esc(unit)}</span></div>
-      ${after < 0 ? '<div style="color:var(--danger);font-size:12px">สต๊อกไม่พอสำหรับจำนวนนี้</div>' : ''}
-      ${after >= 0 && product.min_qty > 0 && after <= product.min_qty ? `<div style="color:var(--warn);font-size:12px">⚠️ จะต่ำกว่าจุดสั่งซื้อ (ขั้นต่ำ ${fmt(product.min_qty)})</div>` : ''}`;
+      <div class="row"><span class="row__label">ຄົງເຫຼືອຫຼັງເຮັດລາຍການ</span><span class="confirm__big qty-${cls}">${fmt(after)} ${esc(unit)}</span></div>
+      ${after < 0 ? '<div style="color:var(--danger);font-size:12px">ສະຕອກບໍ່ພໍສຳລັບຈຳນວນນີ້</div>' : ''}
+      ${after >= 0 && product.min_qty > 0 && after <= product.min_qty ? `<div style="color:var(--warn);font-size:12px">⚠️ ຈະຕ່ຳກວ່າຈຸດສັ່ງຊື້ (ຂັ້ນຕ່ຳ ${fmt(product.min_qty)})</div>` : ''}`;
 
     const btn = $('#submitBtn');
     btn.disabled = invalid;
-    btn.textContent = `ยืนยัน${ACTIONS[action].label} ${fmt(qty)} ${unit}`;
+    btn.textContent = `ຢືນຢັນ${ACTIONS[action].label} ${fmt(qty)} ${unit}`;
   };
 
   form.addEventListener('input', updatePreview);
@@ -452,7 +452,7 @@ async function openMovement(productId, action = 'issue') {
     e.preventDefault();
     const btn = $('#submitBtn');
     btn.disabled = true;
-    btn.textContent = 'กำลังบันทึก…';
+    btn.textContent = 'ກຳລັງບັນທຶກ…';
     try {
       const payload = {
         action,
@@ -464,7 +464,7 @@ async function openMovement(productId, action = 'issue') {
       if (action === 'transfer') payload.toLocationId = Number(form.toLocationId.value);
       const result = await api('/movements', { method: 'POST', body: JSON.stringify(payload) });
       closeSheet();
-      toast(`${meta.label}สำเร็จ · เลขที่ ${result.ref}`, 'ok');
+      toast(`${meta.label}ສຳເລັດ · ເລກທີ ${result.ref}`, 'ok');
       await refreshAll();
     } catch (err) {
       toast(err.message, 'error');
@@ -474,40 +474,40 @@ async function openMovement(productId, action = 'issue') {
   });
 }
 
-/* ------------------------------------------------------ ฟอร์มสินค้า */
+/* ------------------------------------------------------ ຟອມສິນຄ້າ */
 
 function openProductForm(product = null) {
   const p = product ?? {};
   openSheet(`
-    ${sheetHead(product ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่', product ? p.sku : 'กรอกข้อมูลสินค้าที่ต้องการเก็บสต๊อก')}
+    ${sheetHead(product ? 'ແກ້ໄຂສິນຄ້າ' : 'ເພີ່ມສິນຄ້າໃໝ່', product ? p.sku : 'ປ້ອນຂໍ້ມູນສິນຄ້າທີ່ຕ້ອງການເກັບສະຕອກ')}
     <form id="productForm" style="margin-top:14px">
-      <div class="field"><label>ชื่อสินค้า *</label><input name="name" required value="${esc(p.name ?? '')}" placeholder="เช่น ปากกาลูกลื่น น้ำเงิน" /></div>
+      <div class="field"><label>ຊື່ສິນຄ້າ *</label><input name="name" required value="${esc(p.name ?? '')}" placeholder="ເຊັ່ນ ປາກກາລູກລື່ນ ສີຟ້າ" /></div>
       <div class="field--row">
-        <div class="field"><label>รหัสสินค้า (SKU)</label><input name="sku" value="${esc(p.sku ?? '')}" placeholder="เว้นว่างให้ระบบสร้าง" /></div>
-        <div class="field"><label>หน่วยนับ</label><input name="unit" value="${esc(p.unit ?? 'ชิ้น')}" /></div>
+        <div class="field"><label>ລະຫັດສິນຄ້າ (SKU)</label><input name="sku" value="${esc(p.sku ?? '')}" placeholder="ປະຫວ່າງໃຫ້ລະບົບສ້າງ" /></div>
+        <div class="field"><label>ໜ່ວຍນັບ</label><input name="unit" value="${esc(p.unit ?? 'ອັນ')}" /></div>
       </div>
       <div class="field">
-        <label>บาร์โค้ด</label>
+        <label>ບາໂຄ້ດ</label>
         <div style="display:flex;gap:8px">
-          <input name="barcode" value="${esc(p.barcode ?? '')}" placeholder="สแกนหรือพิมพ์" style="flex:1" />
-          <button type="button" class="btn btn--ghost" id="scanIntoField">สแกน</button>
+          <input name="barcode" value="${esc(p.barcode ?? '')}" placeholder="ສະແກນ ຫຼື ພິມ" style="flex:1" />
+          <button type="button" class="btn btn--ghost" id="scanIntoField">ສະແກນ</button>
         </div>
       </div>
       <div class="field--row">
-        <div class="field"><label>หมวดหมู่</label><input name="category" value="${esc(p.category ?? '')}" placeholder="เช่น เครื่องเขียน" /></div>
-        <div class="field"><label>จุดสั่งซื้อขั้นต่ำ</label><input name="min_qty" type="number" min="0" step="any" value="${p.min_qty ?? 0}" /></div>
+        <div class="field"><label>ໝວດໝູ່</label><input name="category" value="${esc(p.category ?? '')}" placeholder="ເຊັ່ນ ເຄື່ອງຂຽນ" /></div>
+        <div class="field"><label>ຈຸດສັ່ງຊື້ຂັ້ນຕ່ຳ</label><input name="min_qty" type="number" min="0" step="any" value="${p.min_qty ?? 0}" /></div>
       </div>
       ${
         product
           ? ''
           : `<div class="field--row">
-              <div class="field"><label>ยอดยกมา</label><input name="initial_qty" type="number" min="0" step="any" value="0" /></div>
-              <div class="field"><label>เก็บที่คลัง</label><select name="location_id">${state.locations.map((l) => `<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div>
+              <div class="field"><label>ຍອດຍົກມາ</label><input name="initial_qty" type="number" min="0" step="any" value="0" /></div>
+              <div class="field"><label>ເກັບຢູ່ສາງ</label><select name="location_id">${state.locations.map((l) => `<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div>
             </div>`
       }
-      <div class="field"><label>หมายเหตุ</label><input name="note" value="${esc(p.note ?? '')}" /></div>
-      <button class="btn btn--primary btn--block" type="submit">${product ? 'บันทึกการแก้ไข' : 'เพิ่มสินค้า'}</button>
-      ${product ? `<button class="btn btn--danger btn--block" style="margin-top:8px" type="button" id="archiveBtn">นำสินค้าออกจากระบบ</button>` : ''}
+      <div class="field"><label>ໝາຍເຫດ</label><input name="note" value="${esc(p.note ?? '')}" /></div>
+      <button class="btn btn--primary btn--block" type="submit">${product ? 'ບັນທຶກການແກ້ໄຂ' : 'ເພີ່ມສິນຄ້າ'}</button>
+      ${product ? `<button class="btn btn--danger btn--block" style="margin-top:8px" type="button" id="archiveBtn">ນຳສິນຄ້າອອກຈາກລະບົບ</button>` : ''}
     </form>
   `);
 
@@ -518,11 +518,11 @@ function openProductForm(product = null) {
   });
 
   $('#archiveBtn')?.addEventListener('click', async () => {
-    if (!confirm('ต้องการนำสินค้านี้ออกจากระบบหรือไม่? ประวัติเดิมจะยังอยู่')) return;
+    if (!confirm('ຕ້ອງການນຳສິນຄ້ານີ້ອອກຈາກລະບົບຫຼືບໍ່? ປະຫວັດເກົ່າຈະຍັງຢູ່')) return;
     try {
       await api(`/products/${p.id}`, { method: 'DELETE' });
       closeSheet();
-      toast('นำสินค้าออกแล้ว', 'ok');
+      toast('ນຳສິນຄ້າອອກແລ້ວ', 'ok');
       await refreshAll();
     } catch (err) {
       toast(err.message, 'error');
@@ -539,7 +539,7 @@ function openProductForm(product = null) {
       if (product) await api(`/products/${p.id}`, { method: 'PUT', body: JSON.stringify(body) });
       else await api('/products', { method: 'POST', body: JSON.stringify(body) });
       closeSheet();
-      toast(product ? 'บันทึกแล้ว' : 'เพิ่มสินค้าแล้ว', 'ok');
+      toast(product ? 'ບັນທຶກແລ້ວ' : 'ເພີ່ມສິນຄ້າແລ້ວ', 'ok');
       await refreshAll();
     } catch (err) {
       toast(err.message, 'error');
@@ -547,33 +547,33 @@ function openProductForm(product = null) {
   });
 }
 
-/* -------------------------------------------------------- ฟอร์มคลัง */
+/* -------------------------------------------------------- ຟອມສາງ */
 
 function openLocationForm(location = null) {
   const l = location ?? {};
   openSheet(`
-    ${sheetHead(location ? 'แก้ไขคลัง' : 'เพิ่มคลังใหม่', location ? l.code : 'สร้างที่เก็บสินค้าใหม่')}
+    ${sheetHead(location ? 'ແກ້ໄຂສາງ' : 'ເພີ່ມສາງໃໝ່', location ? l.code : 'ສ້າງບ່ອນເກັບສິນຄ້າໃໝ່')}
     <form id="locForm" style="margin-top:14px">
       <div class="field--row">
-        <div class="field"><label>รหัสคลัง *</label><input name="code" required value="${esc(l.code ?? '')}" placeholder="MAIN" /></div>
-        <div class="field"><label>ชื่อคลัง *</label><input name="name" required value="${esc(l.name ?? '')}" placeholder="คลังกลาง" /></div>
+        <div class="field"><label>ລະຫັດສາງ *</label><input name="code" required value="${esc(l.code ?? '')}" placeholder="MAIN" /></div>
+        <div class="field"><label>ຊື່ສາງ *</label><input name="name" required value="${esc(l.name ?? '')}" placeholder="ສາງກາງ" /></div>
       </div>
       <label style="display:flex;gap:10px;align-items:center;font-size:13px;margin:6px 0 16px">
         <input type="checkbox" name="is_default" ${l.is_default ? 'checked' : ''} style="width:18px;height:18px" />
-        ตั้งเป็นคลังเริ่มต้น
+        ຕັ້ງເປັນສາງເລີ່ມຕົ້ນ
       </label>
-      <button class="btn btn--primary btn--block" type="submit">${location ? 'บันทึก' : 'เพิ่มคลัง'}</button>
-      ${location ? `<button class="btn btn--danger btn--block" style="margin-top:8px" type="button" id="delLoc">ลบคลังนี้</button>` : ''}
+      <button class="btn btn--primary btn--block" type="submit">${location ? 'ບັນທຶກ' : 'ເພີ່ມສາງ'}</button>
+      ${location ? `<button class="btn btn--danger btn--block" style="margin-top:8px" type="button" id="delLoc">ລຶບສາງນີ້</button>` : ''}
     </form>
   `);
 
   const form = $('#locForm');
   $('#delLoc')?.addEventListener('click', async () => {
-    if (!confirm('ลบคลังนี้หรือไม่?')) return;
+    if (!confirm('ລຶບສາງນີ້ຫຼືບໍ່?')) return;
     try {
       await api(`/locations/${l.id}`, { method: 'DELETE' });
       closeSheet();
-      toast('ลบคลังแล้ว', 'ok');
+      toast('ລຶບສາງແລ້ວ', 'ok');
       await refreshAll();
     } catch (err) {
       toast(err.message, 'error');
@@ -591,7 +591,7 @@ function openLocationForm(location = null) {
       if (location) await api(`/locations/${l.id}`, { method: 'PUT', body: JSON.stringify(body) });
       else await api('/locations', { method: 'POST', body: JSON.stringify(body) });
       closeSheet();
-      toast('บันทึกแล้ว', 'ok');
+      toast('ບັນທຶກແລ້ວ', 'ok');
       await refreshAll();
     } catch (err) {
       toast(err.message, 'error');
@@ -599,7 +599,7 @@ function openLocationForm(location = null) {
   });
 }
 
-/* ------------------------------------------------------------- สแกน */
+/* ------------------------------------------------------------- ສະແກນ */
 
 async function scan() {
   try {
@@ -610,7 +610,7 @@ async function scan() {
   } catch (err) {
     console.warn('scanCodeV2 failed', err);
   }
-  const manual = prompt('กรอกบาร์โค้ด (อุปกรณ์นี้เปิดกล้องสแกนผ่าน LINE ไม่ได้)');
+  const manual = prompt('ປ້ອນບາໂຄ້ດ (ອຸປະກອນນີ້ເປີດກ້ອງສະແກນຜ່ານ LINE ບໍ່ໄດ້)');
   return manual?.trim() || null;
 }
 
@@ -621,7 +621,7 @@ async function scanAndOpen() {
     const { product } = await api(`/products/lookup/${encodeURIComponent(code)}`);
     openProduct(product.id);
   } catch {
-    if (confirm(`ไม่พบสินค้าบาร์โค้ด ${code}\nต้องการเพิ่มเป็นสินค้าใหม่หรือไม่?`)) {
+    if (confirm(`ບໍ່ພົບສິນຄ້າບາໂຄ້ດ ${code}\nຕ້ອງການເພີ່ມເປັນສິນຄ້າໃໝ່ຫຼືບໍ່?`)) {
       openProductForm();
       setTimeout(() => {
         const el = $('#productForm')?.barcode;
@@ -639,10 +639,10 @@ function switchTab(tab) {
   $$('.view').forEach((v) => (v.hidden = v.dataset.view !== tab));
   $$('.tab[data-tab]').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === tab));
   $('#topbarSubtitle').textContent = {
-    overview: 'ภาพรวมวันนี้',
-    products: 'รายการสินค้าทั้งหมด',
-    history: 'ประวัติการเคลื่อนไหว',
-    settings: 'ตั้งค่าระบบ',
+    overview: 'ພາບລວມມື້ນີ້',
+    products: 'ລາຍການສິນຄ້າທັງໝົດ',
+    history: 'ປະຫວັດການເຄື່ອນໄຫວ',
+    settings: 'ຕັ້ງຄ່າລະບົບ',
   }[tab];
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (tab === 'history') renderHistory();

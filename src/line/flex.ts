@@ -1,7 +1,7 @@
-/* ตัวสร้าง Flex Message — เป็น "หน้าตา" ของระบบฝั่งแชท LINE */
+/* ຕົວສ້າງ Flex Message — ເປັນ "ໜ້າຕາ" ຂອງລະບົບຝັ່ງແຊັດ LINE */
 import type { ActionType } from '../types';
 import type { LevelRow, MovementRow, ProductWithStock } from '../db/repo';
-import { fmtQty, fmtThaiDateTime } from '../lib/util';
+import { fmtQty, fmtLaoDateTime } from '../lib/util';
 
 type Flex = any;
 
@@ -23,13 +23,13 @@ export const C = {
 };
 
 export const ACTION_META: Record<ActionType, { label: string; color: string; icon: string; verb: string }> = {
-  issue: { label: 'เบิกออก', color: C.issue, icon: '📤', verb: 'เบิก' },
-  receive: { label: 'รับเข้า', color: C.receive, icon: '📥', verb: 'รับเข้า' },
-  adjust: { label: 'ปรับยอด', color: C.adjust, icon: '⚖️', verb: 'ปรับยอดเป็น' },
-  transfer: { label: 'ย้ายคลัง', color: C.transfer, icon: '🔁', verb: 'ย้าย' },
+  issue: { label: 'ເບີກອອກ', color: C.issue, icon: '📤', verb: 'ເບີກ' },
+  receive: { label: 'ຮັບເຂົ້າ', color: C.receive, icon: '📥', verb: 'ຮັບເຂົ້າ' },
+  adjust: { label: 'ປັບຍອດ', color: C.adjust, icon: '⚖️', verb: 'ປັບຍອດເປັນ' },
+  transfer: { label: 'ຍ້າຍສາງ', color: C.transfer, icon: '🔁', verb: 'ຍ້າຍ' },
 };
 
-export const VIEW_META = { label: 'ดูข้อมูลสินค้า', color: C.brand, icon: '🔎', verb: 'ดู' };
+export const VIEW_META = { label: 'ເບິ່ງຂໍ້ມູນສິນຄ້າ', color: C.brand, icon: '🔎', verb: 'ເບິ່ງ' };
 
 export function pb(data: Record<string, string | number | undefined>): string {
   const p = new URLSearchParams();
@@ -100,12 +100,12 @@ export function text(msg: string, quickReplies = true): Flex {
 
 export function quickReplyBar(): Flex {
   const items = [
-    { label: '📦 เช็คสต๊อก', text: 'เช็ค ' },
-    { label: '📤 เบิกของ', text: 'เบิก ' },
-    { label: '📥 รับเข้า', text: 'รับเข้า ' },
-    { label: '⚠️ ใกล้หมด', text: 'ใกล้หมด' },
-    { label: '🕘 ประวัติ', text: 'ประวัติ' },
-    { label: '❓ วิธีใช้', text: 'ช่วยเหลือ' },
+    { label: '📦 ກວດສະຕອກ', text: 'ກວດ ' },
+    { label: '📤 ເບີກຂອງ', text: 'ເບີກ ' },
+    { label: '📥 ຮັບເຂົ້າ', text: 'ຮັບເຂົ້າ ' },
+    { label: '⚠️ ໃກ້ໝົດ', text: 'ໃກ້ໝົດ' },
+    { label: '🕘 ປະຫວັດ', text: 'ປະຫວັດ' },
+    { label: '❓ ວິທີໃຊ້', text: 'ຊ່ວຍເຫຼືອ' },
   ];
   return {
     items: items.map((i) => ({
@@ -145,26 +145,26 @@ export function helpMessage(liffUrl: string): Flex {
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header('พิมพ์คำสั่งสั้น ๆ ได้เลย', 'วิธีใช้งาน', C.brand),
+    header: header('ພິມຄຳສັ່ງສັ້ນໆໄດ້ເລີຍ', 'ວິທີໃຊ້ງານ', C.brand),
     body: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '16px',
       contents: [
-        cmd('เช็คสต๊อก', 'เช็ค ปากกา', 'ดูยอดคงเหลือแยกตามคลัง (หรือพิมพ์/สแกนบาร์โค้ดมาตรง ๆ)'),
+        cmd('ກວດສະຕອກ', 'ກວດ ປາກກາ', 'ເບິ່ງຍອດຄົງເຫຼືອແຍກຕາມສາງ (ຫຼືພິມ/ສະແກນບາໂຄ້ດໄດ້ເລີຍ)'),
         divider(),
-        cmd('เบิกออก', 'เบิก ปากกา 5', 'ระบบจะให้เลือกสินค้า/คลัง แล้วยืนยันก่อนตัดสต๊อก'),
+        cmd('ເບີກອອກ', 'ເບີກ ປາກກາ 5', 'ລະບົບຈະໃຫ້ເລືອກສິນຄ້າ/ສາງ ແລ້ວຢືນຢັນກ່ອນຕັດສະຕອກ'),
         divider(),
-        cmd('รับเข้า', 'รับเข้า กระดาษ A4 10 @คลังกลาง', 'ใส่ @ชื่อคลัง เพื่อระบุคลังทันที'),
+        cmd('ຮັບເຂົ້າ', 'ຮັບເຂົ້າ ເຈ້ຍ A4 10 @ສາງກາງ', 'ໃສ່ @ຊື່ສາງ ເພື່ອລະບຸສາງທັນທີ'),
         divider(),
-        cmd('ปรับยอด', 'ปรับ ปากกา 42', 'ปรับให้ตรงกับจำนวนที่นับได้จริง'),
+        cmd('ປັບຍອດ', 'ປັບ ປາກກາ 42', 'ປັບໃຫ້ຕົງກັບຈຳນວນທີ່ນັບໄດ້ຈິງ'),
         divider(),
-        cmd('ย้ายคลัง', 'ย้าย ปากกา 5 @คลังกลาง @หน้าร้าน', 'ตัดจากคลังแรก ไปเพิ่มที่คลังหลัง'),
+        cmd('ຍ້າຍສາງ', 'ຍ້າຍ ປາກກາ 5 @ສາງກາງ @ຮ້ານຄ້າ', 'ຕັດຈາກສາງທຳອິດ ໄປເພີ່ມທີ່ສາງຫຼັງ'),
         divider(),
-        cmd('รายงาน', 'ใกล้หมด · ประวัติ · คลัง', 'ดูของใกล้หมด ประวัติล่าสุด และรายชื่อคลัง'),
+        cmd('ລາຍງານ', 'ໃກ້ໝົດ · ປະຫວັດ · ສາງ', 'ເບິ່ງຂອງໃກ້ໝົດ ປະຫວັດລ່າສຸດ ແລະ ລາຍຊື່ສາງ'),
         {
           type: 'text',
-          text: 'เพิ่มหมายเหตุได้ด้วยเครื่องหมาย # เช่น  เบิก ปากกา 5 #งานอีเวนต์',
+          text: 'ເພີ່ມໝາຍເຫດໄດ້ດ້ວຍເຄື່ອງໝາຍ # ເຊັ່ນ  ເບີກ ປາກກາ 5 #ວຽກອິເວນ',
           size: 'xxs',
           color: C.muted,
           wrap: true,
@@ -176,11 +176,11 @@ export function helpMessage(liffUrl: string): Flex {
       type: 'box',
       layout: 'vertical',
       paddingAll: '12px',
-      contents: [uriButton('เปิดแดชบอร์ด', liffUrl, 'primary')],
+      contents: [uriButton('ເປີດແດຊບອດ', liffUrl, 'primary')],
     },
     styles: { footer: { separator: true, separatorColor: C.line } },
   };
-  return wrap('วิธีใช้งานระบบสต๊อก', bubble);
+  return wrap('ວິທີໃຊ້ງານລະບົບສະຕອກ', bubble);
 }
 
 export function productCard(
@@ -244,19 +244,19 @@ export function productCard(
           type: 'text',
           text:
             total <= 0
-              ? '🔴 สินค้าหมด'
+              ? '🔴 ສິນຄ້າໝົດ'
               : product.min_qty > 0 && total <= product.min_qty
-                ? `🟠 ต่ำกว่าจุดสั่งซื้อ (ขั้นต่ำ ${fmtQty(product.min_qty)})`
-                : `🟢 คงเหลือปกติ${product.min_qty > 0 ? ` (ขั้นต่ำ ${fmtQty(product.min_qty)})` : ''}`,
+                ? `🟠 ຕ່ຳກວ່າຈຸດສັ່ງຊື້ (ຂັ້ນຕ່ຳ ${fmtQty(product.min_qty)})`
+                : `🟢 ຄົງເຫຼືອປົກກະຕິ${product.min_qty > 0 ? ` (ຂັ້ນຕ່ຳ ${fmtQty(product.min_qty)})` : ''}`,
           size: 'xxs',
           color: color,
           margin: 'sm',
         },
         { type: 'separator', color: C.line, margin: 'lg' },
-        { type: 'text', text: 'คงเหลือแยกตามคลัง', size: 'xxs', color: C.muted, weight: 'bold', margin: 'lg' },
+        { type: 'text', text: 'ຄົງເຫຼືອແຍກຕາມສາງ', size: 'xxs', color: C.muted, weight: 'bold', margin: 'lg' },
         { type: 'box', layout: 'vertical', spacing: 'sm', margin: 'md', contents: levelRows },
         ...(product.barcode
-          ? [{ type: 'text', text: `บาร์โค้ด ${product.barcode}`, size: 'xxs', color: C.muted, margin: 'lg' }]
+          ? [{ type: 'text', text: `ບາໂຄ້ດ ${product.barcode}`, size: 'xxs', color: C.muted, margin: 'lg' }]
           : []),
       ],
     },
@@ -271,16 +271,16 @@ export function productCard(
           layout: 'horizontal',
           spacing: 'sm',
           contents: [
-            button('เบิกออก', pb({ a: 'start', act: 'issue', pid: product.id }), 'primary', C.issue),
-            button('รับเข้า', pb({ a: 'start', act: 'receive', pid: product.id }), 'primary', C.receive),
+            button('ເບີກອອກ', pb({ a: 'start', act: 'issue', pid: product.id }), 'primary', C.issue),
+            button('ຮັບເຂົ້າ', pb({ a: 'start', act: 'receive', pid: product.id }), 'primary', C.receive),
           ],
         },
-        uriButton('ดูรายละเอียดในแดชบอร์ด', `${liffUrl}?p=${product.id}`),
+        uriButton('ເບິ່ງລາຍລະອຽດໃນແດຊບອດ', `${liffUrl}?p=${product.id}`),
       ],
     },
     styles: { footer: { separator: true, separatorColor: C.line } },
   };
-  return wrap(`${product.name} คงเหลือ ${fmtQty(total)} ${product.unit}`, bubble);
+  return wrap(`${product.name} ຄົງເຫຼືອ ${fmtQty(total)} ${product.unit}`, bubble);
 }
 
 export function productPicker(
@@ -308,7 +308,7 @@ export function productPicker(
           { type: 'text', text: p.sku, size: 'xxs', color: C.muted, flex: 5 },
           {
             type: 'text',
-            text: `คงเหลือ ${fmtQty(p.total_qty)} ${p.unit}`,
+            text: `ຄົງເຫຼືອ ${fmtQty(p.total_qty)} ${p.unit}`,
             size: 'xxs',
             color: stockColor(p.total_qty, p.min_qty),
             align: 'end',
@@ -323,16 +323,16 @@ export function productPicker(
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header(hint ?? 'เลือกสินค้าที่ต้องการ', `${meta.icon} ${meta.label}`, meta.color),
+    header: header(hint ?? 'ເລືອກສິນຄ້າທີ່ຕ້ອງການ', `${meta.icon} ${meta.label}`, meta.color),
     body: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '14px',
       contents: [
-        { type: 'text', text: `พบ ${items.length} รายการที่ตรงกัน`, size: 'xxs', color: C.muted },
+        { type: 'text', text: `ພົບ ${items.length} ລາຍການທີ່ຕົງກັນ`, size: 'xxs', color: C.muted },
         ...rows,
         ...(items.length > 8
-          ? [{ type: 'text', text: 'แสดง 8 รายการแรก — พิมพ์ให้เจาะจงขึ้นเพื่อลดผลลัพธ์', size: 'xxs', color: C.muted, margin: 'md', wrap: true }]
+          ? [{ type: 'text', text: 'ສະແດງ 8 ລາຍການທຳອິດ — ພິມໃຫ້ຈຳເພາະຂຶ້ນເພື່ອຫຼຸດຜົນລັບ', size: 'xxs', color: C.muted, margin: 'md', wrap: true }]
           : []),
       ],
     },
@@ -340,10 +340,10 @@ export function productPicker(
       type: 'box',
       layout: 'vertical',
       paddingAll: '10px',
-      contents: [button('ยกเลิก', pb({ a: 'cancel', t: token }), 'secondary')],
+      contents: [button('ຍົກເລິກ', pb({ a: 'cancel', t: token }), 'secondary')],
     },
   };
-  return wrap('เลือกสินค้า', bubble);
+  return wrap('ເລືອກສິນຄ້າ', bubble);
 }
 
 export function locationPicker(
@@ -356,7 +356,7 @@ export function locationPicker(
 ): Flex {
   const meta = ACTION_META[action];
   const title =
-    target === 'to' ? 'เลือกคลังปลายทาง' : action === 'receive' ? 'รับเข้าที่คลังไหน' : 'เบิกจากคลังไหน';
+    target === 'to' ? 'ເລືອກສາງປາຍທາງ' : action === 'receive' ? 'ຮັບເຂົ້າທີ່ສາງໃດ' : 'ເບີກຈາກສາງໃດ';
   const rows = levels.map((l) => ({
     type: 'box',
     layout: 'horizontal',
@@ -405,7 +405,7 @@ export function locationPicker(
       type: 'box',
       layout: 'vertical',
       paddingAll: '10px',
-      contents: [button('ยกเลิก', pb({ a: 'cancel', t: token }), 'secondary')],
+      contents: [button('ຍົກເລິກ', pb({ a: 'cancel', t: token }), 'secondary')],
     },
   };
   return wrap(title, bubble);
@@ -430,18 +430,18 @@ export function confirmCard(v: ConfirmView): Flex {
   const meta = ACTION_META[v.action];
   const afterColor = stockColor(v.afterQty, v.minQty);
   const rows: Flex[] = [
-    kv('คลัง', v.action === 'transfer' ? `${v.locationName} → ${v.toLocationName}` : v.locationName),
-    kv(v.action === 'adjust' ? 'ปรับเป็น' : 'จำนวน', `${fmtQty(v.qty)} ${v.unit}`, meta.color, true),
+    kv('ສາງ', v.action === 'transfer' ? `${v.locationName} → ${v.toLocationName}` : v.locationName),
+    kv(v.action === 'adjust' ? 'ປັບເປັນ' : 'ຈຳນວນ', `${fmtQty(v.qty)} ${v.unit}`, meta.color, true),
     divider(),
-    kv('คงเหลือปัจจุบัน', `${fmtQty(v.currentQty)} ${v.unit}`),
-    kv('คงเหลือหลังทำรายการ', `${fmtQty(v.afterQty)} ${v.unit}`, afterColor, true),
+    kv('ຄົງເຫຼືອປັດຈຸບັນ', `${fmtQty(v.currentQty)} ${v.unit}`),
+    kv('ຄົງເຫຼືອຫຼັງເຮັດລາຍການ', `${fmtQty(v.afterQty)} ${v.unit}`, afterColor, true),
   ];
-  if (v.note) rows.push(divider(), kv('หมายเหตุ', v.note));
+  if (v.note) rows.push(divider(), kv('ໝາຍເຫດ', v.note));
 
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header('ตรวจสอบก่อนยืนยัน', `${meta.icon} ${meta.label}`, meta.color),
+    header: header('ກວດສອບກ່ອນຢືນຢັນ', `${meta.icon} ${meta.label}`, meta.color),
     body: {
       type: 'box',
       layout: 'vertical',
@@ -459,9 +459,9 @@ export function confirmCard(v: ConfirmView): Flex {
         divider(),
         ...rows,
         ...(v.afterQty <= 0
-          ? [{ type: 'text', text: '⚠️ ทำรายการนี้แล้วสินค้าจะหมดคลัง', size: 'xxs', color: C.danger, margin: 'md', wrap: true }]
+          ? [{ type: 'text', text: '⚠️ ເຮັດລາຍການນີ້ແລ້ວສິນຄ້າຈະໝົດສາງ', size: 'xxs', color: C.danger, margin: 'md', wrap: true }]
           : v.minQty > 0 && v.afterQty <= v.minQty
-            ? [{ type: 'text', text: `⚠️ จะต่ำกว่าจุดสั่งซื้อ (ขั้นต่ำ ${fmtQty(v.minQty)})`, size: 'xxs', color: C.warn, margin: 'md', wrap: true }]
+            ? [{ type: 'text', text: `⚠️ ຈະຕ່ຳກວ່າຈຸດສັ່ງຊື້ (ຂັ້ນຕ່ຳ ${fmtQty(v.minQty)})`, size: 'xxs', color: C.warn, margin: 'md', wrap: true }]
             : []),
       ],
     },
@@ -471,13 +471,13 @@ export function confirmCard(v: ConfirmView): Flex {
       spacing: 'sm',
       paddingAll: '12px',
       contents: [
-        button('ยกเลิก', pb({ a: 'cancel', t: v.token }), 'secondary'),
-        button('ยืนยัน', pb({ a: 'confirm', t: v.token }), 'primary', meta.color),
+        button('ຍົກເລິກ', pb({ a: 'cancel', t: v.token }), 'secondary'),
+        button('ຢືນຢັນ', pb({ a: 'confirm', t: v.token }), 'primary', meta.color),
       ],
     },
     styles: { footer: { separator: true, separatorColor: C.line } },
   };
-  return wrap(`ยืนยัน${meta.label} ${v.productName} ${fmtQty(v.qty)} ${v.unit}`, bubble);
+  return wrap(`ຢືນຢັນ${meta.label} ${v.productName} ${fmtQty(v.qty)} ${v.unit}`, bubble);
 }
 
 export interface ResultView extends Omit<ConfirmView, 'token' | 'currentQty'> {
@@ -493,7 +493,7 @@ export function resultCard(v: ResultView, liffUrl: string): Flex {
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header('บันทึกรายการเรียบร้อย', `✅ ${meta.label}สำเร็จ`, meta.color),
+    header: header('ບັນທຶກລາຍການຮຽບຮ້ອຍ', `✅ ${meta.label}ສຳເລັດ`, meta.color),
     body: {
       type: 'box',
       layout: 'vertical',
@@ -505,28 +505,28 @@ export function resultCard(v: ResultView, liffUrl: string): Flex {
           layout: 'vertical',
           contents: [
             { type: 'text', text: v.productName, size: 'md', weight: 'bold', color: C.ink, wrap: true },
-            { type: 'text', text: `${v.sku} · เลขที่ ${v.ref}`, size: 'xxs', color: C.muted, margin: 'xs' },
+            { type: 'text', text: `${v.sku} · ເລກທີ ${v.ref}`, size: 'xxs', color: C.muted, margin: 'xs' },
           ],
         },
         divider(),
-        kv('คลัง', v.action === 'transfer' ? `${v.locationName} → ${v.toLocationName}` : v.locationName),
+        kv('ສາງ', v.action === 'transfer' ? `${v.locationName} → ${v.toLocationName}` : v.locationName),
         kv(meta.label, `${fmtQty(v.qty)} ${v.unit}`, meta.color, true),
         kv(
-          v.action === 'transfer' ? `คงเหลือ ${v.locationName}` : 'คงเหลือในคลังนี้',
+          v.action === 'transfer' ? `ຄົງເຫຼືອ ${v.locationName}` : 'ຄົງເຫຼືອໃນສາງນີ້',
           `${fmtQty(v.afterQty)} ${v.unit}`,
           afterColor,
           true,
         ),
         ...(v.action === 'transfer' && v.toAfterQty !== undefined
-          ? [kv(`คงเหลือ ${v.toLocationName}`, `${fmtQty(v.toAfterQty)} ${v.unit}`, C.ink, true)]
+          ? [kv(`ຄົງເຫຼືອ ${v.toLocationName}`, `${fmtQty(v.toAfterQty)} ${v.unit}`, C.ink, true)]
           : []),
-        kv('รวมทุกคลัง', `${fmtQty(v.totalQty)} ${v.unit}`),
-        ...(v.note ? [kv('หมายเหตุ', v.note)] : []),
-        ...(v.actorName ? [kv('ผู้ทำรายการ', v.actorName)] : []),
+        kv('ລວມທຸກສາງ', `${fmtQty(v.totalQty)} ${v.unit}`),
+        ...(v.note ? [kv('ໝາຍເຫດ', v.note)] : []),
+        ...(v.actorName ? [kv('ຜູ້ເຮັດລາຍການ', v.actorName)] : []),
         ...(v.totalQty <= 0
-          ? [{ type: 'text', text: '🔴 สินค้าหมดสต๊อกแล้ว ควรสั่งซื้อเพิ่ม', size: 'xxs', color: C.danger, margin: 'md', wrap: true }]
+          ? [{ type: 'text', text: '🔴 ສິນຄ້າໝົດສະຕອກແລ້ວ ຄວນສັ່ງຊື້ເພີ່ມ', size: 'xxs', color: C.danger, margin: 'md', wrap: true }]
           : v.minQty > 0 && v.totalQty <= v.minQty
-            ? [{ type: 'text', text: `🟠 คงเหลือรวมต่ำกว่าจุดสั่งซื้อ (ขั้นต่ำ ${fmtQty(v.minQty)})`, size: 'xxs', color: C.warn, margin: 'md', wrap: true }]
+            ? [{ type: 'text', text: `🟠 ຄົງເຫຼືອລວມຕ່ຳກວ່າຈຸດສັ່ງຊື້ (ຂັ້ນຕ່ຳ ${fmtQty(v.minQty)})`, size: 'xxs', color: C.warn, margin: 'md', wrap: true }]
             : []),
       ],
     },
@@ -534,11 +534,11 @@ export function resultCard(v: ResultView, liffUrl: string): Flex {
       type: 'box',
       layout: 'vertical',
       paddingAll: '12px',
-      contents: [uriButton('เปิดแดชบอร์ด', liffUrl)],
+      contents: [uriButton('ເປີດແດຊບອດ', liffUrl)],
     },
     styles: { footer: { separator: true, separatorColor: C.line } },
   };
-  return wrap(`${meta.label} ${v.productName} ${fmtQty(v.qty)} ${v.unit} สำเร็จ`, bubble);
+  return wrap(`${meta.label} ${v.productName} ${fmtQty(v.qty)} ${v.unit} ສຳເລັດ`, bubble);
 }
 
 export function lowStockCard(items: ProductWithStock[], liffUrl: string): Flex {
@@ -554,7 +554,7 @@ export function lowStockCard(items: ProductWithStock[], liffUrl: string): Flex {
         flex: 7,
         contents: [
           { type: 'text', text: p.name, size: 'sm', color: C.ink, wrap: true, weight: 'bold' },
-          { type: 'text', text: `ขั้นต่ำ ${fmtQty(p.min_qty)} ${p.unit}`, size: 'xxs', color: C.muted, margin: 'xs' },
+          { type: 'text', text: `ຂັ້ນຕ່ຳ ${fmtQty(p.min_qty)} ${p.unit}`, size: 'xxs', color: C.muted, margin: 'xs' },
         ],
       },
       {
@@ -573,32 +573,32 @@ export function lowStockCard(items: ProductWithStock[], liffUrl: string): Flex {
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header(`${items.length} รายการต้องเติมสต๊อก`, '⚠️ สินค้าใกล้หมด / หมด', C.warn),
+    header: header(`${items.length} ລາຍການຕ້ອງເຕີມສະຕອກ`, '⚠️ ສິນຄ້າໃກ້ໝົດ / ໝົດ', C.warn),
     body: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '16px',
       contents: rows.length
         ? rows
-        : [{ type: 'text', text: 'ยอดเยี่ยม — ไม่มีสินค้าต่ำกว่าจุดสั่งซื้อ 🎉', size: 'sm', color: C.body, wrap: true }],
+        : [{ type: 'text', text: 'ຍອດດີເລີດ — ບໍ່ມີສິນຄ້າຕ່ຳກວ່າຈຸດສັ່ງຊື້ 🎉', size: 'sm', color: C.body, wrap: true }],
     },
     footer: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '12px',
-      contents: [uriButton('ดูทั้งหมดในแดชบอร์ด', `${liffUrl}?tab=products&status=low`)],
+      contents: [uriButton('ເບິ່ງທັງໝົດໃນແດຊບອດ', `${liffUrl}?tab=products&status=low`)],
     },
   };
-  return wrap('รายการสินค้าใกล้หมด', bubble);
+  return wrap('ລາຍການສິນຄ້າໃກ້ໝົດ', bubble);
 }
 
-export function historyCard(rows: MovementRow[], liffUrl: string, title = 'ความเคลื่อนไหวล่าสุด'): Flex {
+export function historyCard(rows: MovementRow[], liffUrl: string, title = 'ການເຄື່ອນໄຫວລ່າສຸດ'): Flex {
   const typeLabel: Record<string, { t: string; c: string }> = {
-    issue: { t: 'เบิกออก', c: C.issue },
-    receive: { t: 'รับเข้า', c: C.receive },
-    adjust: { t: 'ปรับยอด', c: C.adjust },
-    transfer_out: { t: 'ย้ายออก', c: C.transfer },
-    transfer_in: { t: 'ย้ายเข้า', c: C.transfer },
+    issue: { t: 'ເບີກອອກ', c: C.issue },
+    receive: { t: 'ຮັບເຂົ້າ', c: C.receive },
+    adjust: { t: 'ປັບຍອດ', c: C.adjust },
+    transfer_out: { t: 'ຍ້າຍອອກ', c: C.transfer },
+    transfer_in: { t: 'ຍ້າຍເຂົ້າ', c: C.transfer },
   };
   const items = rows.slice(0, 10).map((m) => {
     const meta = typeLabel[m.type] ?? { t: m.type, c: C.body };
@@ -625,7 +625,7 @@ export function historyCard(rows: MovementRow[], liffUrl: string, title = 'ค�
         },
         {
           type: 'text',
-          text: `${meta.t} · ${m.location_name} · ${fmtThaiDateTime(m.created_at)}${m.actor_name ? ' · ' + m.actor_name : ''}`,
+          text: `${meta.t} · ${m.location_name} · ${fmtLaoDateTime(m.created_at)}${m.actor_name ? ' · ' + m.actor_name : ''}`,
           size: 'xxs',
           color: C.muted,
           margin: 'xs',
@@ -638,20 +638,20 @@ export function historyCard(rows: MovementRow[], liffUrl: string, title = 'ค�
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header(title, '🕘 ประวัติ', C.brand),
+    header: header(title, '🕘 ປະຫວັດ', C.brand),
     body: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '16px',
       contents: items.length
         ? items
-        : [{ type: 'text', text: 'ยังไม่มีความเคลื่อนไหว', size: 'sm', color: C.body }],
+        : [{ type: 'text', text: 'ຍັງບໍ່ມີການເຄື່ອນໄຫວ', size: 'sm', color: C.body }],
     },
     footer: {
       type: 'box',
       layout: 'vertical',
       paddingAll: '12px',
-      contents: [uriButton('ดูประวัติทั้งหมด', `${liffUrl}?tab=history`)],
+      contents: [uriButton('ເບິ່ງປະຫວັດທັງໝົດ', `${liffUrl}?tab=history`)],
     },
   };
   return wrap(title, bubble);
@@ -661,7 +661,7 @@ export function locationsCard(rows: { name: string; code: string; items: number;
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header(`ทั้งหมด ${rows.length} คลัง`, '🏬 คลังสินค้า', C.brand),
+    header: header(`ທັງໝົດ ${rows.length} ສາງ`, '🏬 ສາງສິນຄ້າ', C.brand),
     body: {
       type: 'box',
       layout: 'vertical',
@@ -685,15 +685,15 @@ export function locationsCard(rows: { name: string; code: string; items: number;
             layout: 'vertical',
             flex: 5,
             contents: [
-              { type: 'text', text: `${fmtQty(r.units)} หน่วย`, size: 'sm', align: 'end', color: C.ink, weight: 'bold' },
-              { type: 'text', text: `${r.items} รายการ`, size: 'xxs', align: 'end', color: C.muted, margin: 'xs' },
+              { type: 'text', text: `${fmtQty(r.units)} ໜ່ວຍ`, size: 'sm', align: 'end', color: C.ink, weight: 'bold' },
+              { type: 'text', text: `${r.items} ລາຍການ`, size: 'xxs', align: 'end', color: C.muted, margin: 'xs' },
             ],
           },
         ],
       })),
     },
   };
-  return wrap('รายชื่อคลัง', bubble);
+  return wrap('ລາຍຊື່ສາງ', bubble);
 }
 
 export function summaryCard(
@@ -712,7 +712,7 @@ export function summaryCard(
   const bubble: Flex = {
     type: 'bubble',
     size: 'mega',
-    header: header('ภาพรวมสต๊อกวันนี้', '📊 สรุป', C.brand),
+    header: header('ພາບລວມສະຕອກມື້ນີ້', '📊 ສະຫຼຸບ', C.brand),
     body: {
       type: 'box',
       layout: 'vertical',
@@ -722,15 +722,15 @@ export function summaryCard(
         {
           type: 'box',
           layout: 'horizontal',
-          contents: [stat('รายการสินค้า', fmtQty(s.productCount)), stat('หน่วยคงเหลือรวม', fmtQty(s.totalUnits))],
+          contents: [stat('ລາຍການສິນຄ້າ', fmtQty(s.productCount)), stat('ໜ່ວຍຄົງເຫຼືອລວມ', fmtQty(s.totalUnits))],
         },
         divider(),
         {
           type: 'box',
           layout: 'horizontal',
           contents: [
-            stat('ใกล้หมด', fmtQty(s.lowCount), C.warn),
-            stat('หมดสต๊อก', fmtQty(s.outCount), C.danger),
+            stat('ໃກ້ໝົດ', fmtQty(s.lowCount), C.warn),
+            stat('ໝົດສະຕອກ', fmtQty(s.outCount), C.danger),
           ],
         },
         divider(),
@@ -738,8 +738,8 @@ export function summaryCard(
           type: 'box',
           layout: 'horizontal',
           contents: [
-            stat('เบิกวันนี้', fmtQty(s.todayIssue), C.issue),
-            stat('รับเข้าวันนี้', fmtQty(s.todayReceive), C.receive),
+            stat('ເບີກມື້ນີ້', fmtQty(s.todayIssue), C.issue),
+            stat('ຮັບເຂົ້າມື້ນີ້', fmtQty(s.todayReceive), C.receive),
           ],
         },
       ],
@@ -748,9 +748,9 @@ export function summaryCard(
       type: 'box',
       layout: 'vertical',
       paddingAll: '12px',
-      contents: [uriButton('เปิดแดชบอร์ด', liffUrl, 'primary')],
+      contents: [uriButton('ເປີດແດຊບອດ', liffUrl, 'primary')],
     },
     styles: { footer: { separator: true, separatorColor: C.line } },
   };
-  return wrap('ภาพรวมสต๊อก', bubble);
+  return wrap('ພາບລວມສະຕອກ', bubble);
 }

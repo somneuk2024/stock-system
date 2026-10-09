@@ -44,7 +44,7 @@ export async function getProfile(
   }
 }
 
-/** ตรวจลายเซ็น x-line-signature (HMAC-SHA256 ของ raw body, base64) */
+/** ກວດລາຍເຊັນ x-line-signature (HMAC-SHA256 ຂອງ raw body, base64) */
 export async function verifySignature(secret: string, rawBody: string, signature: string | null): Promise<boolean> {
   if (!signature || !secret) return false;
   const key = await crypto.subtle.importKey(

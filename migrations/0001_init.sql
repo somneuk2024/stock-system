@@ -1,4 +1,4 @@
--- ระบบจัดการสต๊อกผ่าน LINE : โครงสร้างฐานข้อมูลเริ่มต้น
+-- ລະບົບຈັດການສະຕອກຜ່ານ LINE : ໂຄງສ້າງຖານຂໍ້ມູນເລີ່ມຕົ້ນ
 
 CREATE TABLE users (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,7 @@ CREATE TABLE products (
   barcode     TEXT UNIQUE,
   name        TEXT NOT NULL,
   category    TEXT,
-  unit        TEXT NOT NULL DEFAULT 'ชิ้น',
+  unit        TEXT NOT NULL DEFAULT 'ອັນ',
   min_qty     REAL NOT NULL DEFAULT 0,
   note        TEXT,
   active      INTEGER NOT NULL DEFAULT 1,
@@ -35,7 +35,7 @@ CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_active ON products(active);
 
--- ยอดคงเหลือแยกตามคลัง
+-- ຍອດຄົງເຫຼືອແຍກຕາມສາງ
 CREATE TABLE stock_levels (
   product_id  INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
@@ -45,7 +45,7 @@ CREATE TABLE stock_levels (
 );
 CREATE INDEX idx_stock_location ON stock_levels(location_id);
 
--- บันทึกความเคลื่อนไหวทุกครั้ง (ledger)
+-- ບັນທຶກການເຄື່ອນໄຫວທຸກຄັ້ງ (ledger)
 CREATE TABLE movements (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   ref            TEXT NOT NULL,
@@ -65,7 +65,7 @@ CREATE INDEX idx_movements_product ON movements(product_id, id DESC);
 CREATE INDEX idx_movements_created ON movements(created_at DESC);
 CREATE INDEX idx_movements_ref ON movements(ref);
 
--- ร่างรายการที่รอการยืนยันจากแชท LINE (1 ร่าง ต่อ 1 ผู้ใช้)
+-- ຮ່າງລາຍການທີ່ລໍຖ້າການຢືນຢັນຈາກແຊັດ LINE (1 ຮ່າງ ຕໍ່ 1 ຜູ້ໃຊ້)
 CREATE TABLE drafts (
   line_user_id  TEXT PRIMARY KEY,
   token         TEXT NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE drafts (
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- กันการประมวลผล webhook ซ้ำ (LINE ส่งซ้ำได้)
+-- ກັນການປະມວນຜົນ webhook ຊ້ຳ (LINE ສົ່ງຊ້ຳໄດ້)
 CREATE TABLE processed_events (
   event_id    TEXT PRIMARY KEY,
   created_at  INTEGER NOT NULL

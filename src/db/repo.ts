@@ -40,7 +40,7 @@ export async function defaultLocation(db: D1Database): Promise<Location | null> 
     .first<Location>();
 }
 
-/** หาคลังจากคำที่ผู้ใช้พิมพ์ เช่น "MAIN" หรือ "คลังกลาง" หรือ "หน้าร้าน" */
+/** ຫາສາງຈາກຄຳທີ່ຜູ້ໃຊ້ພິມ ເຊັ່ນ "MAIN" ຫຼື "ສາງກາງ" ຫຼື "ຮ້ານຄ້າ" */
 export async function findLocationByKeyword(db: D1Database, keyword: string): Promise<Location | null> {
   const k = norm(keyword);
   if (!k) return null;
@@ -65,7 +65,7 @@ export async function createLocation(db: D1Database, code: string, name: string,
 
 export async function updateLocation(db: D1Database, id: number, patch: Partial<Location>): Promise<Location | null> {
   const current = await getLocation(db, id);
-  if (!current) throw new AppError('ไม่พบคลังที่ต้องการแก้ไข', 404);
+  if (!current) throw new AppError('ບໍ່ພົບສາງທີ່ຕ້ອງການແກ້ໄຂ', 404);
   const next = {
     code: (patch.code ?? current.code).trim().toUpperCase(),
     name: (patch.name ?? current.name).trim(),
@@ -85,7 +85,7 @@ export async function deleteLocation(db: D1Database, id: number): Promise<void> 
     .prepare('SELECT COUNT(*) AS c FROM stock_levels WHERE location_id = ? AND qty != 0')
     .bind(id)
     .first<{ c: number }>();
-  if ((used?.c ?? 0) > 0) throw new AppError('คลังนี้ยังมีสินค้าคงเหลืออยู่ ย้ายสินค้าออกก่อนจึงจะลบได้');
+  if ((used?.c ?? 0) > 0) throw new AppError('ສາງນີ້ຍັງມີສິນຄ້າຄົງເຫຼືອຢູ່ ຍ້າຍສິນຄ້າອອກກ່ອນຈຶ່ງຈະລຶບໄດ້');
   await db.prepare('UPDATE locations SET active = 0 WHERE id = ?').bind(id).run();
 }
 
@@ -159,7 +159,7 @@ export async function listProducts(
     ORDER BY p.name
     LIMIT ?`;
 
-  // ลำดับ bind: qtyExpr อยู่ใน SELECT จึงมาก่อน WHERE
+  // ລຳດັບ bind: qtyExpr ຢູ່ໃນ SELECT ຈຶ່ງມາກ່ອນ WHERE
   const { results } = await db.prepare(sql).bind(...qtyBinds, ...binds, limit).all<ProductWithStock>();
   return results ?? [];
 }
@@ -176,13 +176,13 @@ export async function getProductByBarcode(db: D1Database, barcode: string): Prom
 }
 
 export async function createProduct(db: D1Database, input: Partial<Product>): Promise<Product> {
-  if (!input.name?.trim()) throw new AppError('กรุณาระบุชื่อสินค้า');
+  if (!input.name?.trim()) throw new AppError('ກະລຸນາລະບຸຊື່ສິນຄ້າ');
   const sku = input.sku?.trim() || (await nextSku(db));
   const dup = await db.prepare('SELECT id FROM products WHERE sku = ?').bind(sku).first();
-  if (dup) throw new AppError(`รหัสสินค้า ${sku} ถูกใช้ไปแล้ว`);
+  if (dup) throw new AppError(`ລະຫັດສິນຄ້າ ${sku} ຖືກໃຊ້ໄປແລ້ວ`);
   if (input.barcode?.trim()) {
     const dupBc = await db.prepare('SELECT id FROM products WHERE barcode = ?').bind(input.barcode.trim()).first();
-    if (dupBc) throw new AppError(`บาร์โค้ด ${input.barcode.trim()} ถูกใช้ไปแล้ว`);
+    if (dupBc) throw new AppError(`ບາໂຄ້ດ ${input.barcode.trim()} ຖືກໃຊ້ໄປແລ້ວ`);
   }
   const row = await db
     .prepare(
@@ -194,7 +194,7 @@ export async function createProduct(db: D1Database, input: Partial<Product>): Pr
       input.barcode?.trim() || null,
       input.name.trim(),
       input.category?.trim() || null,
-      input.unit?.trim() || 'ชิ้น',
+      input.unit?.trim() || 'ອັນ',
       Number(input.min_qty ?? 0),
       input.note?.trim() || null,
     )
@@ -209,11 +209,11 @@ async function nextSku(db: D1Database): Promise<string> {
 
 export async function updateProduct(db: D1Database, id: number, patch: Partial<Product>): Promise<Product | null> {
   const current = await getProduct(db, id);
-  if (!current) throw new AppError('ไม่พบสินค้า', 404);
+  if (!current) throw new AppError('ບໍ່ພົບສິນຄ້າ', 404);
   const barcode = patch.barcode !== undefined ? patch.barcode?.trim() || null : current.barcode;
   if (barcode && barcode !== current.barcode) {
     const dup = await db.prepare('SELECT id FROM products WHERE barcode = ? AND id != ?').bind(barcode, id).first();
-    if (dup) throw new AppError(`บาร์โค้ด ${barcode} ถูกใช้ไปแล้ว`);
+    if (dup) throw new AppError(`ບາໂຄ້ດ ${barcode} ຖືກໃຊ້ໄປແລ້ວ`);
   }
   await db
     .prepare(
@@ -278,7 +278,7 @@ export async function totalQty(db: D1Database, productId: number): Promise<numbe
   return row?.q ?? 0;
 }
 
-/** บวก/ลบสต๊อกแบบกันติดลบ (atomic ที่ระดับ statement) */
+/** ບວກ/ລົບສະຕອກແບບກັນຕິດລົບ (atomic ທີ່ລະດັບ statement) */
 async function addStock(db: D1Database, productId: number, locationId: number, delta: number): Promise<number> {
   await db
     .prepare('INSERT OR IGNORE INTO stock_levels (product_id, location_id, qty) VALUES (?, ?, 0)')
@@ -294,7 +294,7 @@ async function addStock(db: D1Database, productId: number, locationId: number, d
     .first<{ qty: number }>();
   if (!row) {
     const have = await getQty(db, productId, locationId);
-    throw new AppError(`สต๊อกไม่พอ (คงเหลือ ${have})`);
+    throw new AppError(`ສະຕອກບໍ່ພໍ (ຄົງເຫຼືອ ${have})`);
   }
   return row.qty;
 }
@@ -341,7 +341,7 @@ export interface MovementResult {
   total: number;
 }
 
-/** เบิกออก */
+/** ເບີກອອກ */
 export async function issue(
   db: D1Database,
   productId: number,
@@ -350,7 +350,7 @@ export async function issue(
   note: string | null,
   actor: Actor,
 ): Promise<MovementResult> {
-  if (qty <= 0) throw new AppError('จำนวนต้องมากกว่า 0');
+  if (qty <= 0) throw new AppError('ຈຳນວນຕ້ອງຫຼາຍກວ່າ 0');
   const ref = makeRef('OUT');
   const balance = await addStock(db, productId, locationId, -qty);
   await logMovement(db, {
@@ -359,7 +359,7 @@ export async function issue(
   return { ref, balanceAfter: balance, total: await totalQty(db, productId) };
 }
 
-/** รับเข้า */
+/** ຮັບເຂົ້າ */
 export async function receive(
   db: D1Database,
   productId: number,
@@ -368,7 +368,7 @@ export async function receive(
   note: string | null,
   actor: Actor,
 ): Promise<MovementResult> {
-  if (qty <= 0) throw new AppError('จำนวนต้องมากกว่า 0');
+  if (qty <= 0) throw new AppError('ຈຳນວນຕ້ອງຫຼາຍກວ່າ 0');
   const ref = makeRef('IN');
   const balance = await addStock(db, productId, locationId, qty);
   await logMovement(db, {
@@ -377,7 +377,7 @@ export async function receive(
   return { ref, balanceAfter: balance, total: await totalQty(db, productId) };
 }
 
-/** ปรับยอดให้เท่ากับจำนวนที่นับได้จริง */
+/** ປັບຍອດໃຫ້ເທົ່າກັບຈຳນວນທີ່ນັບໄດ້ຈິງ */
 export async function adjust(
   db: D1Database,
   productId: number,
@@ -386,7 +386,7 @@ export async function adjust(
   note: string | null,
   actor: Actor,
 ): Promise<MovementResult> {
-  if (targetQty < 0) throw new AppError('จำนวนคงเหลือติดลบไม่ได้');
+  if (targetQty < 0) throw new AppError('ຈຳນວນຄົງເຫຼືອຕິດລົບບໍ່ໄດ້');
   const ref = makeRef('ADJ');
   await db
     .prepare('INSERT OR IGNORE INTO stock_levels (product_id, location_id, qty) VALUES (?, ?, 0)')
@@ -412,10 +412,10 @@ export async function adjust(
       return { ref, balanceAfter: row.qty, total: await totalQty(db, productId) };
     }
   }
-  throw new AppError('ปรับยอดไม่สำเร็จ มีการแก้ไขสต๊อกพร้อมกัน กรุณาลองใหม่');
+  throw new AppError('ປັບຍອດບໍ່ສຳເລັດ ມີການແກ້ໄຂສະຕອກພ້ອມກັນ ກະລຸນາລອງໃໝ່');
 }
 
-/** ย้ายระหว่างคลัง */
+/** ຍ້າຍລະຫວ່າງສາງ */
 export async function transfer(
   db: D1Database,
   productId: number,
@@ -425,15 +425,15 @@ export async function transfer(
   note: string | null,
   actor: Actor,
 ): Promise<MovementResult> {
-  if (qty <= 0) throw new AppError('จำนวนต้องมากกว่า 0');
-  if (fromId === toId) throw new AppError('คลังต้นทางและปลายทางต้องต่างกัน');
+  if (qty <= 0) throw new AppError('ຈຳນວນຕ້ອງຫຼາຍກວ່າ 0');
+  if (fromId === toId) throw new AppError('ສາງຕົ້ນທາງແລະປາຍທາງຕ້ອງຕ່າງກັນ');
   const ref = makeRef('TRF');
   const fromBalance = await addStock(db, productId, fromId, -qty);
   let toBalance: number;
   try {
     toBalance = await addStock(db, productId, toId, qty);
   } catch (err) {
-    await addStock(db, productId, fromId, qty); // คืนค่าเมื่อขาปลายทางล้มเหลว
+    await addStock(db, productId, fromId, qty); // ຄືນຄ່າເມື່ອຂາປາຍທາງລົ້ມເຫຼວ
     throw err;
   }
   await logMovement(db, {
@@ -579,7 +579,7 @@ export async function clearDraft(db: D1Database, lineUserId: string): Promise<vo
   await db.prepare('DELETE FROM drafts WHERE line_user_id = ?').bind(lineUserId).run();
 }
 
-/** กัน webhook ซ้ำ — คืน true ถ้าเคยประมวลผลแล้ว */
+/** ກັນ webhook ຊ້ຳ — ຄືນ true ຖ້າເຄີຍປະມວນຜົນແລ້ວ */
 export async function isDuplicateEvent(db: D1Database, eventId: string): Promise<boolean> {
   try {
     await db

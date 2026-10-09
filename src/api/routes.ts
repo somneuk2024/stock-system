@@ -8,7 +8,7 @@ type Vars = { Variables: { user: AuthUser }; Bindings: Env };
 
 export const api = new Hono<Vars>();
 
-/* config เปิดสาธารณะ — หน้าเว็บต้องรู้ LIFF ID ก่อนจึงจะ init ได้ */
+/* config ເປີດສາທາລະນະ — ໜ້າເວັບຕ້ອງຮູ້ LIFF ID ກ່ອນຈຶ່ງຈະ init ໄດ້ */
 api.get('/config', (c) =>
   c.json({ liffId: c.env.LIFF_ID ?? '', dev: c.env.ENVIRONMENT === 'dev' }),
 );
@@ -46,7 +46,7 @@ api.get('/locations', async (c) => c.json(await repo.listLocations(c.env.DB, fal
 
 api.post('/locations', async (c) => {
   const body = await c.req.json<{ code: string; name: string; is_default?: boolean }>();
-  if (!body.code?.trim() || !body.name?.trim()) throw new AppError('กรุณากรอกรหัสและชื่อคลัง');
+  if (!body.code?.trim() || !body.name?.trim()) throw new AppError('ກະລຸນາປ້ອນລະຫັດແລະຊື່ສາງ');
   return c.json(await repo.createLocation(c.env.DB, body.code, body.name, !!body.is_default), 201);
 });
 
@@ -75,7 +75,7 @@ api.get('/products', async (c) => {
 
 api.get('/products/lookup/:code', async (c) => {
   const product = await repo.getProductByBarcode(c.env.DB, c.req.param('code'));
-  if (!product) return c.json({ error: 'ไม่พบสินค้าที่มีบาร์โค้ดนี้' }, 404);
+  if (!product) return c.json({ error: 'ບໍ່ພົບສິນຄ້າທີ່ມີບາໂຄ້ດນີ້' }, 404);
   const levels = await repo.getLevels(c.env.DB, product.id);
   return c.json({ product, levels });
 });
@@ -83,7 +83,7 @@ api.get('/products/lookup/:code', async (c) => {
 api.get('/products/:id', async (c) => {
   const id = Number(c.req.param('id'));
   const product = await repo.getProduct(c.env.DB, id);
-  if (!product) return c.json({ error: 'ไม่พบสินค้า' }, 404);
+  if (!product) return c.json({ error: 'ບໍ່ພົບສິນຄ້າ' }, 404);
   const [levels, movements] = await Promise.all([
     repo.getLevels(c.env.DB, id),
     repo.listMovements(c.env.DB, { productId: id, limit: 30 }),
@@ -94,12 +94,12 @@ api.get('/products/:id', async (c) => {
 api.post('/products', async (c) => {
   const body = await c.req.json<Record<string, never>>();
   const product = await repo.createProduct(c.env.DB, body);
-  // ตั้งยอดเริ่มต้นถ้าระบุมา
+  // ຕັ້ງຍອດເລີ່ມຕົ້ນຖ້າລະບຸມາ
   const initialQty = Number((body as Record<string, unknown>).initial_qty ?? 0);
   const locationId = Number((body as Record<string, unknown>).location_id ?? 0);
   if (initialQty > 0 && locationId) {
     const user = c.get('user');
-    await repo.receive(c.env.DB, product.id, locationId, initialQty, 'ยอดยกมาตอนสร้างสินค้า', {
+    await repo.receive(c.env.DB, product.id, locationId, initialQty, 'ຍອດຍົກມາຕອນສ້າງສິນຄ້າ', {
       lineUserId: user.lineUserId, name: user.name, source: 'liff',
     });
   }
@@ -138,8 +138,8 @@ api.post('/movements', async (c) => {
   const actor = { lineUserId: user.lineUserId, name: user.name, source: 'liff' as const };
   const db = c.env.DB;
   const qty = Number(body.qty);
-  if (!body.productId || !body.locationId) throw new AppError('ข้อมูลไม่ครบ');
-  if (!Number.isFinite(qty)) throw new AppError('จำนวนไม่ถูกต้อง');
+  if (!body.productId || !body.locationId) throw new AppError('ຂໍ້ມູນບໍ່ຄົບ');
+  if (!Number.isFinite(qty)) throw new AppError('ຈຳນວນບໍ່ຖືກຕ້ອງ');
 
   let result;
   switch (body.action) {
@@ -153,11 +153,11 @@ api.post('/movements', async (c) => {
       result = await repo.adjust(db, body.productId, body.locationId, qty, body.note ?? null, actor);
       break;
     case 'transfer':
-      if (!body.toLocationId) throw new AppError('กรุณาเลือกคลังปลายทาง');
+      if (!body.toLocationId) throw new AppError('ກະລຸນາເລືອກສາງປາຍທາງ');
       result = await repo.transfer(db, body.productId, body.locationId, body.toLocationId, qty, body.note ?? null, actor);
       break;
     default:
-      throw new AppError('ประเภทรายการไม่ถูกต้อง');
+      throw new AppError('ປະເພດລາຍການບໍ່ຖືກຕ້ອງ');
   }
   const levels = await repo.getLevels(db, body.productId);
   return c.json({ ...result, levels });

@@ -18,14 +18,14 @@ app.post('/line/webhook', async (c) => {
 
   const valid = await verifySignature(c.env.LINE_CHANNEL_SECRET, raw, signature);
   if (!valid) {
-    console.warn('ลายเซ็น webhook ไม่ถูกต้อง');
+    console.warn('ລາຍເຊັນ webhook ບໍ່ຖືກຕ້ອງ');
     return c.text('invalid signature', 401);
   }
 
   const body = JSON.parse(raw || '{}') as { events?: any[] };
   const events = body.events ?? [];
 
-  // ตอบ 200 ทันทีตามที่ LINE ต้องการ แล้วประมวลผลต่อเบื้องหลัง
+  // ຕອບ 200 ທັນທີຕາມທີ່ LINE ຕ້ອງການ ແລ້ວປະມວນຜົນຕໍ່ເບື້ອງຫຼັງ
   c.executionCtx.waitUntil(
     (async () => {
       for (const event of events) {
@@ -43,9 +43,9 @@ app.post('/line/webhook', async (c) => {
   return c.text('OK');
 });
 
-/* จำลองบทสนทนาไว้ทดสอบตอนพัฒนา — ปิดสนิทบน production */
+/* ຈຳລອງບົດສົນທະນາໄວ້ທົດສອບຕອນພັດທະນາ — ປິດສະໜິດບົນ production */
 app.post('/line/simulate', async (c) => {
-  if (c.env.ENVIRONMENT !== 'dev') return c.json({ error: 'ไม่พบเส้นทางนี้' }, 404);
+  if (c.env.ENVIRONMENT !== 'dev') return c.json({ error: 'ບໍ່ພົບເສັ້ນທາງນີ້' }, 404);
   const body = await c.req.json<{ user?: string; text?: string; postback?: string }>();
   const messages = await simulate(c.env, body.user ?? 'Utest0000000000000000000000000001', body);
   return c.json({ messages });
@@ -58,13 +58,13 @@ app.route('/api', api);
 app.onError((err, c) => {
   if (err instanceof AppError) return c.json({ error: err.message }, err.status as 400);
   console.error('unhandled error', err);
-  return c.json({ error: 'เกิดข้อผิดพลาดภายในระบบ' }, 500);
+  return c.json({ error: 'ເກີດຂໍ້ຜິດພາດພາຍໃນລະບົບ' }, 500);
 });
 
-/* หน้า LIFF (ไฟล์ static ถูกเสิร์ฟโดย assets binding อยู่แล้ว) */
+/* ໜ້າ LIFF (ໄຟລ໌ static ຖືກເສີບໂດຍ assets binding ຢູ່ແລ້ວ) */
 app.notFound(async (c) => {
   if (c.req.path.startsWith('/api') || c.req.path.startsWith('/line')) {
-    return c.json({ error: 'ไม่พบเส้นทางนี้' }, 404);
+    return c.json({ error: 'ບໍ່ພົບເສັ້ນທາງນີ້' }, 404);
   }
   const url = new URL(c.req.url);
   url.pathname = '/index.html';

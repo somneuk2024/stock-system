@@ -25,7 +25,7 @@
 src/index.ts        จุดเข้าเดียว (Hono): /line/webhook + /api/* + เสิร์ฟหน้า LIFF
 src/line/
   client.ts         เรียก LINE API (reply/push/profile) + ตรวจลายเซ็น HMAC
-  parser.ts         ตีความคำสั่งภาษาไทยเป็น Intent
+  parser.ts         ตีความคำสั่ง **ภาษาลาว** (รองรับคำไทยเดิมด้วย) เป็น Intent
   flex.ts           สร้าง Flex Message ทุกใบ (นี่คือ "หน้าตา" ฝั่งแชท)
   handler.ts        เครื่องยนต์บทสนทนา: advance() เดินทีละขั้น, commit() บันทึกจริง
 src/api/
@@ -43,7 +43,7 @@ richmenu/           ดีไซน์ + สคริปต์ติดตั้
 2. การตัดสต๊อกใช้ `UPDATE ... WHERE qty + ? >= 0 RETURNING qty` เพื่อกันติดลบและ race condition
    ที่ระดับฐานข้อมูล — **อย่าเปลี่ยนไปอ่านค่าแล้วเขียนทับ**
 3. ทุกความเคลื่อนไหวต้องลง `movements` เสมอ (audit trail)
-4. ข้อความที่ผู้ใช้เห็นเป็น **ภาษาไทย** ทั้งหมด
+4. ข้อความที่ผู้ใช้เห็นเป็น **ภาษาลาว** ทั้งหมด (คำสั่งแชทรับได้ทั้งลาวและไทย)
 5. หน้า LIFF ไม่มี build step — แก้ `public/*.js` แล้ว deploy ได้เลย ห้ามเพิ่ม bundler
 6. `/line/simulate` ต้องทำงานเฉพาะเมื่อ `ENVIRONMENT === 'dev'`
 

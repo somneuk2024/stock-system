@@ -36,7 +36,7 @@ export async function handleEvent(env: Env, event: any): Promise<void> {
 
   if (event.type === 'follow' || event.type === 'join') {
     await reply(env, event.replyToken, [
-      F.text(`สวัสดีครับ${userName ? ' คุณ' + userName : ''} 👋\nผมคือผู้ช่วยจัดการสต๊อก พิมพ์คำสั่งสั้น ๆ ได้เลย`),
+      F.text(`ສະບາຍດີ${userName ? ' ' + userName : ''} 👋\nຂ້ອຍເປັນຜູ້ຊ່ວຍຈັດການສະຕອກ ພິມຄຳສັ່ງສັ້ນໆໄດ້ເລີຍ`),
       F.helpMessage(liffUrl(env)),
     ]);
     return;
@@ -55,13 +55,13 @@ export async function handleEvent(env: Env, event: any): Promise<void> {
   }
 }
 
-/** ทดสอบบทสนทนาโดยไม่ต้องยิงผ่าน LINE จริง (เปิดเฉพาะ ENVIRONMENT=dev) */
+/** ຈຳລອງບົດສົນທະນາໂດຍບໍ່ຕ້ອງຍິງຜ່ານ LINE ຈິງ (ເປີດສະເພາະ ENVIRONMENT=dev) */
 export async function simulate(
   env: Env,
   chatKey: string,
   input: { text?: string; postback?: string },
 ): Promise<LineMessage[]> {
-  const ctx: Ctx = { env, db: env.DB, chatKey, userId: chatKey, userName: 'ผู้ทดสอบ' };
+  const ctx: Ctx = { env, db: env.DB, chatKey, userId: chatKey, userName: 'ຜູ້ທົດສອບ' };
   if (input.postback !== undefined) return handlePostback(ctx, new URLSearchParams(input.postback));
   return handleText(ctx, input.text ?? '');
 }
@@ -72,8 +72,8 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
   const { env, db } = ctx;
   const intent = parse(raw);
 
-  // ถ้ากำลังรอจำนวนอยู่ และผู้ใช้พิมพ์ตัวเลขมา
-  if (intent.kind === 'number' || (intent.kind === 'check' && /^[0-9.,]+$/.test(intent.query))) {
+  // ຖ້າກຳລັງລໍຖ້າຈຳນວນຢູ່ ແລະ ຜູ້ໃຊ້ພິມໂຕເລກມາ
+  if (intent.kind === 'number' || (intent.kind === 'check' && /^[0-9.,໐-໙๐-๙]+$/.test(intent.query))) {
     const draft = await repo.getDraft(db, ctx.chatKey);
     if (draft && draft.step === 'ask_qty') {
       const value = intent.kind === 'number' ? intent.value : Number(intent.query.replace(/,/g, ''));
@@ -88,7 +88,7 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
 
     case 'cancel': {
       await repo.clearDraft(db, ctx.chatKey);
-      return [F.text('ยกเลิกรายการแล้วครับ')];
+      return [F.text('ຍົກເລິກລາຍການແລ້ວ')];
     }
 
     case 'summary': {
@@ -123,7 +123,7 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
         const found = await repo.searchProducts(db, intent.query, 1);
         if (found.length) {
           const rows = await repo.listMovements(db, { productId: found[0].id, limit: 10 });
-          return [F.historyCard(rows, liffUrl(env), `ประวัติ: ${found[0].name}`)];
+          return [F.historyCard(rows, liffUrl(env), `ປະຫວັດ: ${found[0].name}`)];
         }
       }
       const rows = await repo.listMovements(db, { limit: 10 });
@@ -133,19 +133,19 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
     case 'barcode': {
       const product = await repo.getProductByBarcode(db, intent.code);
       if (!product) {
-        return [F.text(`ไม่พบสินค้าที่มีบาร์โค้ด ${intent.code}\nเพิ่มสินค้าใหม่ได้ที่แดชบอร์ด: ${liffUrl(env)}`)];
+        return [F.text(`ບໍ່ພົບສິນຄ້າທີ່ມີບາໂຄ້ດ ${intent.code}\nເພີ່ມສິນຄ້າໃໝ່ໄດ້ທີ່ແດຊບອດ: ${liffUrl(env)}`)];
       }
       return [await productMessage(ctx, product.id)];
     }
 
     case 'check': {
       if (!intent.query) {
-        return [F.text('พิมพ์ชื่อสินค้าที่ต้องการเช็คต่อท้ายได้เลยครับ เช่น  เช็ค ปากกา')];
+        return [F.text('ພິມຊື່ສິນຄ້າທີ່ຕ້ອງການກວດຕໍ່ທ້າຍໄດ້ເລີຍ ເຊັ່ນ  ກວດ ປາກກາ')];
       }
       const items = await repo.searchProducts(db, intent.query, 8);
       if (items.length === 0) {
         return [
-          F.text(`ไม่พบสินค้าที่ตรงกับ "${intent.query}"\nลองพิมพ์คำสั้นลง หรือเพิ่มสินค้าใหม่ในแดชบอร์ด`),
+          F.text(`ບໍ່ພົບສິນຄ້າທີ່ຕົງກັບ "${intent.query}"\nລອງພິມຄຳສັ້ນລົງ ຫຼື ເພີ່ມສິນຄ້າໃໝ່ໃນແດຊບອດ`),
         ];
       }
       if (items.length === 1) return [await productMessage(ctx, items[0].id)];
@@ -156,7 +156,7 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
         step: 'pick_product',
         payload: { action: 'issue', query: intent.query, view: true },
       });
-      return [F.productPicker(items, 'view', token, 'เลือกสินค้าที่ต้องการดู')];
+      return [F.productPicker(items, 'view', token, 'ເລືອກສິນຄ້າທີ່ຕ້ອງການເບິ່ງ')];
     }
 
     case 'action': {
@@ -167,21 +167,21 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
         note: intent.note,
       };
 
-      // แปลงชื่อคลังที่พิมพ์มาด้วย @ ให้เป็น id
+      // ແປງຊື່ສາງທີ່ພິມມາດ້ວຍ @ ໃຫ້ເປັນ id
       if (intent.locations.length) {
         const first = await repo.findLocationByKeyword(db, intent.locations[0]);
-        if (!first) return [F.text(`ไม่พบคลังชื่อ "${intent.locations[0]}" — พิมพ์ "คลัง" เพื่อดูรายชื่อคลังทั้งหมด`)];
+        if (!first) return [F.text(`ບໍ່ພົບສາງຊື່ "${intent.locations[0]}" — ພິມ "ສາງ" ເພື່ອເບິ່ງລາຍຊື່ສາງທັງໝົດ`)];
         payload.locationId = first.id;
         if (intent.locations[1]) {
           const second = await repo.findLocationByKeyword(db, intent.locations[1]);
-          if (!second) return [F.text(`ไม่พบคลังชื่อ "${intent.locations[1]}"`)];
+          if (!second) return [F.text(`ບໍ່ພົບສາງຊື່ "${intent.locations[1]}"`)];
           payload.toLocationId = second.id;
         }
       }
 
       if (!payload.query) {
         const meta = F.ACTION_META[intent.action];
-        return [F.text(`พิมพ์ชื่อสินค้าต่อท้ายด้วยครับ เช่น  ${meta.verb} ปากกา 5`)];
+        return [F.text(`ພິມຊື່ສິນຄ້າຕໍ່ທ້າຍດ້ວຍ ເຊັ່ນ  ${meta.verb} ປາກກາ 5`)];
       }
 
       const draft: Draft = { lineUserId: ctx.chatKey, token: randomToken(8), step: 'pick_product', payload };
@@ -189,7 +189,7 @@ async function handleText(ctx: Ctx, raw: string): Promise<LineMessage[]> {
     }
 
     default:
-      return [F.text('ไม่เข้าใจคำสั่งนี้ครับ พิมพ์ "ช่วยเหลือ" เพื่อดูวิธีใช้งาน')];
+      return [F.text('ບໍ່ເຂົ້າໃຈຄຳສັ່ງນີ້ ພິມ "ຊ່ວຍເຫຼືອ" ເພື່ອເບິ່ງວິທີໃຊ້ງານ')];
   }
 }
 
@@ -199,7 +199,7 @@ async function handlePostback(ctx: Ctx, data: URLSearchParams): Promise<LineMess
   const { db } = ctx;
   const a = data.get('a');
 
-  // ปุ่มริชเมนูที่เปิดคีย์บอร์ดพร้อมเติมคำสั่งให้ — ไม่ต้องตอบอะไรกลับ
+  // ປຸ່ມຣິຊເມນູທີ່ເປີດຄີບອດພ້ອມເຕີມຄຳສັ່ງໃຫ້ — ບໍ່ຕ້ອງຕອບຫຍັງກັບ
   if (a === 'noop') return [];
 
   if (a === 'view') {
@@ -209,7 +209,7 @@ async function handlePostback(ctx: Ctx, data: URLSearchParams): Promise<LineMess
 
   if (a === 'cancel') {
     await repo.clearDraft(db, ctx.chatKey);
-    return [F.text('ยกเลิกรายการแล้วครับ')];
+    return [F.text('ຍົກເລິກລາຍການແລ້ວ')];
   }
 
   if (a === 'start') {
@@ -226,7 +226,7 @@ async function handlePostback(ctx: Ctx, data: URLSearchParams): Promise<LineMess
 
   const token = data.get('t') ?? '';
   const draft = await repo.getDraft(db, ctx.chatKey, token);
-  if (!draft) return [F.text('รายการนี้หมดอายุแล้ว (เกิน 10 นาที) กรุณาเริ่มใหม่อีกครั้งครับ')];
+  if (!draft) return [F.text('ລາຍການນີ້ໝົດອາຍຸແລ້ວ (ເກີນ 10 ນາທີ) ກະລຸນາເລີ່ມໃໝ່ອີກຄັ້ງ')];
 
   switch (a) {
     case 'pick_product': {
@@ -250,24 +250,24 @@ async function handlePostback(ctx: Ctx, data: URLSearchParams): Promise<LineMess
 
 async function productMessage(ctx: Ctx, productId: number): Promise<LineMessage> {
   const product = await repo.getProduct(ctx.db, productId);
-  if (!product) return F.text('ไม่พบสินค้านี้แล้วครับ');
+  if (!product) return F.text('ບໍ່ພົບສິນຄ້ານີ້ແລ້ວ');
   const levels = await repo.getLevels(ctx.db, productId);
   const total = levels.reduce((sum, l) => sum + l.qty, 0);
   return F.productCard({ ...product, total_qty: total, location_count: levels.filter((l) => l.qty > 0).length }, levels, liffUrl(ctx.env));
 }
 
-/** เดินหน้าไปยังขั้นตอนถัดไปของร่างรายการ */
+/** ເດີນໜ້າໄປຂັ້ນຕອນຕໍ່ໄປຂອງຮ່າງລາຍການ */
 async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
   const { db } = ctx;
   const p = draft.payload;
   const meta = F.ACTION_META[p.action];
 
-  // 1) สินค้า
+  // 1) ສິນຄ້າ
   if (!p.productId) {
     const items = await repo.searchProducts(db, p.query, 8);
     if (items.length === 0) {
       await repo.clearDraft(db, ctx.chatKey);
-      return [F.text(`ไม่พบสินค้าที่ตรงกับ "${p.query}"\nลองพิมพ์คำสั้นลง หรือเพิ่มสินค้าใหม่ในแดชบอร์ด`)];
+      return [F.text(`ບໍ່ພົບສິນຄ້າທີ່ຕົງກັບ "${p.query}"\nລອງພິມຄຳສັ້ນລົງ ຫຼື ເພີ່ມສິນຄ້າໃໝ່ໃນແດຊບອດ`)];
     }
     if (items.length > 1) {
       draft.step = 'pick_product';
@@ -277,7 +277,7 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
     p.productId = items[0].id;
   }
 
-  // ถ้าเป็นการค้นหาเฉย ๆ ก็จบที่การ์ดสินค้า
+  // ຖ້າເປັນການຄົ້ນຫາເສີຍໆ ກໍ່ຈົບທີ່ການ໌ດສິນຄ້າ
   if (p.view) {
     await repo.clearDraft(db, ctx.chatKey);
     return [await productMessage(ctx, p.productId)];
@@ -286,16 +286,16 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
   const product = await repo.getProduct(db, p.productId);
   if (!product) {
     await repo.clearDraft(db, ctx.chatKey);
-    return [F.text('ไม่พบสินค้านี้แล้วครับ')];
+    return [F.text('ບໍ່ພົບສິນຄ້ານີ້ແລ້ວ')];
   }
   const levels = await repo.getLevels(db, product.id);
 
-  // 2) คลังต้นทาง/คลังที่ทำรายการ
+  // 2) ສາງຕົ້ນທາງ/ສາງທີ່ເຮັດລາຍການ
   if (!p.locationId) {
     const candidates = p.action === 'issue' || p.action === 'transfer' ? levels.filter((l) => l.qty > 0) : levels;
     if (candidates.length === 0) {
       await repo.clearDraft(db, ctx.chatKey);
-      return [F.text(`"${product.name}" ไม่มีคงเหลือในคลังใดเลย จึงเบิกไม่ได้ครับ`)];
+      return [F.text(`"${product.name}" ບໍ່ມີຄົງເຫຼືອໃນສາງໃດເລີຍ ຈຶ່ງເບີກບໍ່ໄດ້`)];
     }
     if (candidates.length === 1) {
       p.locationId = candidates[0].location_id;
@@ -306,12 +306,12 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
     }
   }
 
-  // 3) คลังปลายทาง (เฉพาะการย้าย)
+  // 3) ສາງປາຍທາງ (ສະເພາະການຍ້າຍ)
   if (p.action === 'transfer' && !p.toLocationId) {
     const candidates = levels.filter((l) => l.location_id !== p.locationId);
     if (candidates.length === 0) {
       await repo.clearDraft(db, ctx.chatKey);
-      return [F.text('ต้องมีคลังอย่างน้อย 2 แห่งจึงจะย้ายสินค้าได้ครับ')];
+      return [F.text('ຕ້ອງມີສາງຢ່າງໜ້ອຍ 2 ແຫ່ງຈຶ່ງຈະຍ້າຍສິນຄ້າໄດ້')];
     }
     if (candidates.length === 1) {
       p.toLocationId = candidates[0].location_id;
@@ -322,7 +322,7 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
     }
   }
 
-  // 4) จำนวน
+  // 4) ຈຳນວນ
   if (p.qty === undefined || p.qty === null || Number.isNaN(p.qty) || (p.action !== 'adjust' && p.qty <= 0)) {
     draft.step = 'ask_qty';
     await repo.saveDraft(db, draft);
@@ -330,13 +330,13 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
     return [
       F.text(
         `${meta.icon} ${meta.label} — ${product.name}\n` +
-          `คลัง: ${loc?.name ?? '-'} (คงเหลือ ${fmtQty(loc?.qty ?? 0)} ${product.unit})\n\n` +
-          `พิมพ์จำนวนที่ต้องการ${p.action === 'adjust' ? ' (ยอดที่นับได้จริง)' : ''} เป็นตัวเลขได้เลยครับ`,
+          `ສາງ: ${loc?.name ?? '-'} (ຄົງເຫຼືອ ${fmtQty(loc?.qty ?? 0)} ${product.unit})\n\n` +
+          `ພິມຈຳນວນທີ່ຕ້ອງການ${p.action === 'adjust' ? ' (ຍອດທີ່ນັບໄດ້ຈິງ)' : ''} ເປັນໂຕເລກໄດ້ເລີຍ`,
       ),
     ];
   }
 
-  // 5) ยืนยัน
+  // 5) ຢືນຢັນ
   draft.step = 'confirm';
   await repo.saveDraft(db, draft);
   const current = levels.find((l) => l.location_id === p.locationId)?.qty ?? 0;
@@ -363,14 +363,14 @@ async function advance(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
   ];
 }
 
-/** ยืนยันแล้ว — บันทึกลงฐานข้อมูลจริง */
+/** ຢືນຢັນແລ້ວ — ບັນທຶກລົງຖານຂໍ້ມູນຈິງ */
 async function commit(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
   const { db, env } = ctx;
   const p = draft.payload;
   const product = await repo.getProduct(db, p.productId!);
   if (!product || !p.locationId || p.qty === undefined) {
     await repo.clearDraft(db, ctx.chatKey);
-    return [F.text('ข้อมูลรายการไม่ครบ กรุณาเริ่มใหม่ครับ')];
+    return [F.text('ຂໍ້ມູນລາຍການບໍ່ຄົບ ກະລຸນາເລີ່ມໃໝ່')];
   }
 
   const actor = { lineUserId: ctx.userId, name: ctx.userName, source: 'line' as const };
@@ -408,7 +408,7 @@ async function commit(ctx: Ctx, draft: Draft): Promise<LineMessage[]> {
     ];
   } catch (err) {
     await repo.clearDraft(db, ctx.chatKey);
-    const message = err instanceof AppError ? err.message : 'บันทึกรายการไม่สำเร็จ กรุณาลองใหม่';
+    const message = err instanceof AppError ? err.message : 'ບັນທຶກລາຍການບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່';
     console.error('commit error', err);
     return [F.text(`❌ ${message}`)];
   }

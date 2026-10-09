@@ -2,11 +2,11 @@ export interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
 
-  /** Messaging API — ใช้ตรวจลายเซ็น webhook */
+  /** Messaging API — ໃຊ້ກວດລາຍເຊັນ webhook */
   LINE_CHANNEL_SECRET: string;
-  /** Messaging API — ใช้ตอบกลับ/ส่งข้อความ */
+  /** Messaging API — ໃຊ້ຕອບກັບ/ສົ່ງຂໍ້ຄວາມ */
   LINE_CHANNEL_ACCESS_TOKEN: string;
-  /** LINE Login channel id ของ LIFF — ใช้ตรวจ ID token */
+  /** LINE Login channel id ຂອງ LIFF — ໃຊ້ກວດ ID token */
   LINE_LOGIN_CHANNEL_ID: string;
   LIFF_ID: string;
 
@@ -54,7 +54,7 @@ export interface DraftPayload {
   toLocationId?: number;
   qty?: number;
   note?: string;
-  /** true = ผู้ใช้แค่ต้องการดูข้อมูลสินค้า ไม่ได้ทำรายการ */
+  /** true = ຜູ້ໃຊ້ພຽງແຕ່ຕ້ອງການເບິ່ງຂໍ້ມູນສິນຄ້າ ບໍ່ໄດ້ເຮັດລາຍການ */
   view?: boolean;
 }
 
